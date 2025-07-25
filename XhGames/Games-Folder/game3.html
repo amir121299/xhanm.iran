@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۳: جت‌ست ساده بدون تصویر</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    overflow: hidden;
+    font-family: 'Vazir', sans-serif;
+  }
+  #game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;
+  }
+  #jet {
+    position: absolute;
+    width: 60px;
+    height: 40px;
+    background-color: #2196f3;
+    border-radius: 12px 12px 6px 6px;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    box-shadow: 0 0 10px #2196f3aa;
+  }
+  .obstacle {
+    position: absolute;
+    width: 50px;
+    height: 100px;
+    background: linear-gradient(to bottom, #f44336, #b71c1c);
+    border-radius: 10px;
+  }
+  #score {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #000;
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="jet"></div>
+  <div id="score">امتیاز: 0</div>
+</div>
+
+<script>
+  const game = document.getElementById('game');
+  const jet = document.getElementById('jet');
+  const scoreDisplay = document.getElementById('score');
+
+  let jetY = game.clientHeight / 2;
+  let jetSpeed = 0;
+  const gravity = 0.5;
+  const jetLift = -10;
+  let obstacles = [];
+  let score = 0;
+  let gameOver = false;
+
+  function createObstacle() {
+    const obstacle = document.createElement('div');
+    obstacle.classList.add('obstacle');
+    obstacle.style.top = Math.random() * (game.clientHeight - 150) + 'px';
+    obstacle.style.left = game.clientWidth + 'px';
+    game.appendChild(obstacle);
+    obstacles.push(obstacle);
+  }
+
+  function moveObstacles() {
+    obstacles.forEach((obstacle, i) => {
+      let left = parseFloat(obstacle.style.left);
+      left -= 5;
+      if (left < -50) {
+        obstacle.remove();
+        obstacles.splice(i, 1);
+        score++;
+        scoreDisplay.textContent = 'امتیاز: ' + score;
+      } else {
+        obstacle.style.left = left + 'px';
+      }
+    });
+  }
+
+  function checkCollision() {
+    const jetRect = jet.getBoundingClientRect();
+    for (let obstacle of obstacles) {
+      const obsRect = obstacle.getBoundingClientRect();
+      if (!(jetRect.right < obsRect.left ||
+          jetRect.left > obsRect.right ||
+          jetRect.bottom < obsRect.top ||
+          jetRect.top > obsRect.bottom)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function update() {
+    if (gameOver) return;
+    jetSpeed += gravity;
+    jetY += jetSpeed;
+    if (jetY > game.clientHeight - jet.clientHeight) {
+      jetY = game.clientHeight - jet.clientHeight;
+      jetSpeed = 0;
+    }
+    if (jetY < 0) {
+      jetY = 0;
+      jetSpeed = 0;
+    }
+    jet.style.top = jetY + 'px';
+
+    moveObstacles();
+
+    if (checkCollision()) {
+      alert('بازی تمام شد! امتیاز شما: ' + score);
+      gameOver = true;
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  game.addEventListener('touchstart', () => {
+    if (gameOver) return;
+    jetSpeed = jetLift;
+  });
+
+  setInterval(() => {
+    if (!gameOver) createObstacle();
+  }, 1500);
+
+  update();
+</script>
+</body>
+</html>
+
