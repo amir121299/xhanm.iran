@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۷: بازی حافظه</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    font-family: 'Vazir', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-gap: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 20px;
+  }
+  .card {
+    width: 80px;
+    height: 100px;
+    background: #1abc9c;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    color: transparent;
+    user-select: none;
+    transition: transform 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .card.flipped {
+    background: #16a085;
+    color: white;
+    transform: rotateY(180deg);
+  }
+  .card.matched {
+    background: #2ecc71;
+    color: white;
+    cursor: default;
+    box-shadow: 0 5px 20px #27ae60;
+  }
+</style>
+</head>
+<body>
+
+<div id="game"></div>
+
+<script>
+  const game = document.getElementById('game');
+
+  const symbols = ['🍎','🍌','🍉','🍇','🍒','🥝','🍍','🍑'];
+  let cards = [...symbols, ...symbols]; // 16 cards total
+  cards.sort(() => 0.5 - Math.random());
+
+  let flippedCards = [];
+  let matchedCount = 0;
+
+  function createBoard() {
+    cards.forEach((symbol, index) => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.symbol = symbol;
+      card.dataset.index = index;
+      card.textContent = symbol;
+      card.style.color = 'transparent';
+
+      card.addEventListener('click', () => {
+        if (flippedCards.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+          flipCard(card);
+        }
+      });
+
+      game.appendChild(card);
+    });
+  }
+
+  function flipCard(card) {
+    card.classList.add('flipped');
+    card.style.color = 'white';
+    flippedCards.push(card);
+
+    if (flippedCards.length === 2) {
+      setTimeout(checkMatch, 800);
+    }
+  }
+
+  function checkMatch() {
+    const [card1, card2] = flippedCards;
+
+    if (card1.dataset.symbol === card2.dataset.symbol) {
+      card1.classList.add('matched');
+      card2.classList.add('matched');
+      matchedCount += 2;
+      if (matchedCount === cards.length) {
+        setTimeout(() => alert('🎉 تبریک! همه کارت‌ها را پیدا کردی!'), 300);
+      }
+    } else {
+      card1.classList.remove('flipped');
+      card2.classList.remove('flipped');
+      card1.style.color = 'transparent';
+      card2.style.color = 'transparent';
+    }
+    flippedCards = [];
+  }
+
+  createBoard();
+</script>
+
+</body>
+</html>
