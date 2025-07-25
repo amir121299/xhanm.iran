@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۹: تیراندازی ساده</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(45deg, #232526, #1c1c1c);
+    font-family: 'Vazir', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    user-select: none;
+  }
+  #game-area {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    height: 70vh;
+    background: #111;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  }
+  #target {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at center, #ff4b4b, #b22222);
+    border: 3px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff4b4b;
+    transition: transform 0.2s ease;
+  }
+  #target:active {
+    transform: scale(0.8);
+  }
+  #score-board {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px black;
+  }
+  #time-left {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px black;
+  }
+  #message {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 20px;
+    text-shadow: 0 0 5px black;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-area">
+  <div id="score-board">امتیاز: 0</div>
+  <div id="time-left">زمان: 30</div>
+  <div id="target"></div>
+  <div id="message">روی هدف کلیک کن!</div>
+</div>
+
+<script>
+  const gameArea = document.getElementById('game-area');
+  const target = document.getElementById('target');
+  const scoreBoard = document.getElementById('score-board');
+  const timeLeft = document.getElementById('time-left');
+  const message = document.getElementById('message');
+
+  let score = 0;
+  let time = 30;
+  let gameInterval = null;
+  let timerInterval = null;
+
+  function randomPosition() {
+    const maxX = gameArea.clientWidth - target.clientWidth;
+    const maxY = gameArea.clientHeight - target.clientHeight;
+    const x = Math.floor(Math.random() * maxX);
+    const y = Math.floor(Math.random() * maxY);
+    return { x, y };
+  }
+
+  function moveTarget() {
+    const pos = randomPosition();
+    target.style.left = pos.x + 'px';
+    target.style.top = pos.y + 'px';
+  }
+
+  function startGame() {
+    score = 0;
+    time = 30;
+    scoreBoard.textContent = 'امتیاز: ' + score;
+    timeLeft.textContent = 'زمان: ' + time;
+    message.textContent = 'روی هدف کلیک کن!';
+
+    moveTarget();
+    target.style.display = 'block';
+
+    if (timerInterval) clearInterval(timerInterval);
+    if (gameInterval) clearInterval(gameInterval);
+
+    timerInterval = setInterval(() => {
+      time--;
+      timeLeft.textContent = 'زمان: ' + time;
+      if (time <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(gameInterval);
+        target.style.display = 'none';
+        message.textContent = 'بازی تمام شد! امتیاز شما: ' + score;
+      }
+    }, 1000);
+
+    gameInterval = setInterval(() => {
+      moveTarget();
+    }, 1000);
+  }
+
+  target.addEventListener('click', () => {
+    if (time > 0) {
+      score++;
+      scoreBoard.textContent = 'امتیاز: ' + score;
+      moveTarget();
+    }
+  });
+
+  window.onload = function() {
+    startGame();
+  };
+</script>
+
+</body>
+</html>
