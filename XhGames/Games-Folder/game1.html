@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازی ۱: کلیک ساده</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Vazir', sans-serif;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      animation: bgMove 10s infinite alternate;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: white;
+      text-shadow: 0 0 10px black;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .click-btn {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 15px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.1s, background 0.3s;
+    }
+
+    .click-btn:active {
+      transform: scale(0.95);
+    }
+
+    .score {
+      font-size: 28px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="score">امتیاز: <span id="score">0</span></div>
+    <button class="click-btn" onclick="increaseScore()">کلیک کن!</button>
+  </div>
+  <script>
+    let score = 0;
+    function increaseScore() {
+      score++;
+      document.getElementById("score").textContent = score;
+      if (score === 10) {
+        alert("🎉 آفرین! به 10 رسیدی!");
+      }
+    }
+  </script>
+</body>
+</html>
