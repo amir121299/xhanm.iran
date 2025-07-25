@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بازی ۲: حدس عدد</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Vazir', sans-serif;
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+      animation: bgAnimate 8s infinite alternate;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    @keyframes bgAnimate {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    .game-box {
+      background-color: rgba(0,0,0,0.4);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+      max-width: 90%;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 15px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 18px;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      border: none;
+      border-radius: 12px;
+      color: black;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-box">
+    <h1>بازی حدس عدد 🎯</h1>
+    <p>یک عدد بین ۱ تا ۱۰۰ حدس بزن!</p>
+    <input type="number" id="guess" min="1" max="100" placeholder="عدد را وارد کن">
+    <br>
+    <button onclick="checkGuess()">بررسی</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const secretNumber = Math.floor(Math.random() * 100) + 1;
+    const message = document.getElementById('message');
+
+    function checkGuess() {
+      const guess = Number(document.getElementById('guess').value);
+      if (!guess || guess < 1 || guess > 100) {
+        message.textContent = 'عدد وارد شده نامعتبر است';
+        return;
+      }
+      if (guess === secretNumber) {
+        message.textContent = '🎉 آفرین درست حدس زدی!';
+      } else if (guess < secretNumber) {
+        message.textContent = '⬆️ عدد بزرگ‌تره';
+      } else {
+        message.textContent = '⬇️ عدد کوچک‌تره';
+      }
+    }
+  </script>
+</body>
+</html>
