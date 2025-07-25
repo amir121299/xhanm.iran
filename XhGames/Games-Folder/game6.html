@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۶: پرش قهرمان</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    font-family: 'Vazir', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  #gameCanvas {
+    background: linear-gradient(to top, #6a11cb, #2575fc);
+    border-radius: 20px;
+    border: 3px solid #fff;
+  }
+  #score {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #000;
+  }
+</style>
+</head>
+<body>
+
+<div id="score">امتیاز: 0</div>
+<canvas id="gameCanvas" width="360" height="640"></canvas>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreDisplay = document.getElementById('score');
+
+  const gravity = 0.8;
+  let score = 0;
+  let gameOver = false;
+
+  const hero = {
+    x: 50,
+    y: canvas.height - 60,
+    width: 40,
+    height: 50,
+    color: '#ff4757',
+    dy: 0,
+    jumping: false
+  };
+
+  const obstacles = [];
+  const obstacleWidth = 40;
+  const obstacleHeight = 60;
+  const obstacleSpeed = 5;
+
+  function createObstacle() {
+    const yPos = canvas.height - obstacleHeight;
+    obstacles.push({x: canvas.width, y: yPos, width: obstacleWidth, height: obstacleHeight, color: '#3742fa'});
+  }
+
+  function drawHero() {
+    ctx.fillStyle = hero.color;
+    ctx.shadowColor = 'rgba(255, 71, 87, 0.7)';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(hero.x, hero.y, hero.width, hero.height);
+  }
+
+  function drawObstacles() {
+    obstacles.forEach(obs => {
+      ctx.fillStyle = obs.color;
+      ctx.shadowColor = 'rgba(55, 66, 250, 0.7)';
+      ctx.shadowBlur = 10;
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    });
+  }
+
+  function clear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function update() {
+    if(gameOver) return;
+
+    clear();
+
+    // Gravity and jump
+    if(hero.jumping) {
+      hero.dy += gravity;
+      hero.y += hero.dy;
+
+      if(hero.y >= canvas.height - hero.height - 10) {
+        hero.y = canvas.height - hero.height - 10;
+        hero.jumping = false;
+        hero.dy = 0;
+      }
+    }
+
+    // Move obstacles
+    obstacles.forEach(obs => {
+      obs.x -= obstacleSpeed;
+    });
+
+    // Remove off-screen obstacles
+    while(obstacles.length > 0 && obstacles[0].x + obstacleWidth < 0) {
+      obstacles.shift();
+      score++;
+      scoreDisplay.textContent = 'امتیاز: ' + score;
+    }
+
+    // Create new obstacles randomly
+    if(obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 200) {
+      if(Math.random() < 0.02) createObstacle();
+    }
+
+    // Collision detection
+    for(let obs of obstacles) {
+      if(hero.x < obs.x + obs.width &&
+         hero.x + hero.width > obs.x &&
+         hero.y < obs.y + obs.height &&
+         hero.y + hero.height > obs.y) {
+        gameOver = true;
+        alert('💥 باختی! امتیاز شما: ' + score);
+        document.location.reload();
+      }
+    }
+
+    drawHero();
+    drawObstacles();
+    requestAnimationFrame(update);
+  }
+
+  // پرش با لمس یا فضا
+  function jump() {
+    if(!hero.jumping) {
+      hero.jumping = true;
+      hero.dy = -15;
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if(e.key === ' ' || e.key === 'ArrowUp') {
+      jump();
+    }
+  });
+
+  canvas.addEventListener('touchstart', jump);
+
+  update();
+</script>
+
+</body>
+</html>
