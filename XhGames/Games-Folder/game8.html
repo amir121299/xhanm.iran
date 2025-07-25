@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۸: مسابقه سرعت</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family: 'Vazir', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    user-select: none;
+  }
+  #game-container {
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    width: 90vw;
+    max-width: 400px;
+  }
+  #start-btn, #reaction-btn {
+    padding: 20px 40px;
+    font-size: 24px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    outline: none;
+    margin-top: 20px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    transition: background-color 0.3s;
+  }
+  #start-btn {
+    background-color: #3498db;
+    color: white;
+  }
+  #start-btn:hover {
+    background-color: #2980b9;
+  }
+  #reaction-btn {
+    background-color: #e74c3c;
+    color: white;
+    display: none;
+  }
+  #reaction-btn:hover {
+    background-color: #c0392b;
+  }
+  #message {
+    font-size: 20px;
+    margin-top: 15px;
+    min-height: 24px;
+  }
+  #result {
+    font-size: 28px;
+    margin-top: 20px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <h2>🏁 مسابقه سرعت واکنش</h2>
+  <p id="message">برای شروع روی دکمه زیر کلیک کن</p>
+  <button id="start-btn">شروع</button>
+  <button id="reaction-btn">اکنون کلیک کن!</button>
+  <div id="result"></div>
+</div>
+
+<script>
+  const startBtn = document.getElementById('start-btn');
+  const reactionBtn = document.getElementById('reaction-btn');
+  const message = document.getElementById('message');
+  const result = document.getElementById('result');
+
+  let timeoutId, startTime;
+
+  startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+    result.textContent = '';
+    message.textContent = 'صبر کن تا دکمه ظاهر شود...';
+    const randomDelay = Math.floor(Math.random() * 3000) + 2000; // 2-5 ثانیه
+    timeoutId = setTimeout(() => {
+      reactionBtn.style.display = 'inline-block';
+      message.textContent = 'حالا کلیک کن!';
+      startTime = performance.now();
+    }, randomDelay);
+  });
+
+  reactionBtn.addEventListener('click', () => {
+    const reactionTime = performance.now() - startTime;
+    reactionBtn.style.display = 'none';
+    message.textContent = 'نتیجه:';
+    result.textContent = reactionTime.toFixed(2) + ' میلی‌ثانیه';
+    startBtn.style.display = 'inline-block';
+    message.textContent = 'برای شروع دوباره کلیک کن';
+  });
+</script>
+
+</body>
+</html>
