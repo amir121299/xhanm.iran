@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Media Player XH-ANM</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #121212;
+    }
+    .player {
+      width: 400px;
+      height: 250px;
+      background-color: #222;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    .intro {
+      font-size: 3em;
+      color: white;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      animation: introAnimation 3s forwards;
+    }
+    @keyframes introAnimation {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .button-container {
+      position: absolute;
+      bottom: 20px; /* تنظیم فاصله دکمه از پایین */
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .choose-file-button {
+      width: 150px;
+      height: 50px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+    .choose-file-button:hover {
+      background-color: #0056b3;
+      transform: scale(1.1);
+    }
+    video, img, audio {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="player">
+    <div class="intro">Xh-Anm</div>
+    <video id="video" controls>
+      Your browser does not support the video tag.
+    </video>
+    <img id="image" alt="Selected Image" />
+    <audio id="audio" controls>
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <div class="button-container">
+    <input type="file" id="fileInput" class="choose-file-button" accept="audio/*,video/*,image/*" onchange="loadMedia()" value="Browse" />
+  </div>
+
+  <script>
+    window.onload = () => {
+      const introText = document.querySelector('.intro');
+      setTimeout(() => {
+        introText.style.opacity = '0';
+      }, 3000);  // بعد از 3 ثانیه کلمه Xh محو می‌شود
+    };
+
+    function loadMedia() {
+      const fileInput = document.getElementById('fileInput');
+      const video = document.getElementById('video');
+      const image = document.getElementById('image');
+      const audio = document.getElementById('audio');
+      
+      const file = fileInput.files[0];
+      const fileType = file.type;
+
+      // مخفی کردن تمام عناصر قبلی
+      video.style.display = 'none';
+      image.style.display = 'none';
+      audio.style.display = 'none';
+
+      // بررسی نوع فایل و بارگذاری
+      if (fileType.startsWith('video')) {
+        video.style.display = 'block';
+        video.src = URL.createObjectURL(file);
+        video.play();
+      } else if (fileType.startsWith('image')) {
+        image.style.display = 'block';
+        image.src = URL.createObjectURL(file);
+      } else if (fileType.startsWith('audio')) {
+        audio.style.display = 'block';
+        audio.src = URL.createObjectURL(file);
+        audio.play();
+      }
+    }
+  </script>
+</body>
+</html>
