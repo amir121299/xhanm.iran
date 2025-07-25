@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ماشین حساب پیشرفته</title>
+<style>
+  body {
+    direction: rtl;
+    font-family: Tahoma, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #222;
+    color: #eee;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .calculator {
+    background: #393e46;
+    border-radius: 12px;
+    padding: 20px;
+    width: 340px;
+    box-shadow: 0 0 15px #00adb5;
+  }
+
+  .display {
+    background: #222831;
+    height: 60px;
+    border-radius: 8px;
+    font-size: 2rem;
+    padding: 10px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .buttons {
+    direction: ltr; /* دکمه‌ها به صورت چپ به راست */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px; /* فاصله بین دکمه‌ها */
+  }
+
+  button {
+    background: #00adb5;
+    border: none;
+    border-radius: 8px;
+    padding: 18px;
+    font-size: 1.3rem;
+    color: #222831;
+    cursor: pointer;
+    transition: background 0.3s;
+    user-select: none;
+  }
+
+  button.operator {
+    background: #30475e;
+    color: #eeeeee;
+  }
+
+  button:hover {
+    background: #007f8c;
+    color: white;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  .history {
+    background: #393e46;
+    border-radius: 12px;
+    padding: 20px;
+    width: 340px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 0 15px #00adb5;
+  }
+
+  .history h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #00adb5;
+    padding-bottom: 6px;
+  }
+
+  .history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .history-list li {
+    padding: 8px 12px;
+    border-bottom: 1px solid #555;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .history-list li:hover {
+    background: #00adb5;
+    color: #222831;
+  }
+
+  .about-btn {
+    background: #ff5722;
+    margin-top: 15px;
+    width: 100%;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1.2rem;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .about-btn:hover {
+    background: #e64a19;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: #393e46;
+    padding: 30px 40px;
+    border-radius: 14px;
+    box-shadow: 0 0 30px #00adb5;
+    max-width: 400px;
+    text-align: center;
+    color: #eeeeee;
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+
+  .close-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #ff5722;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+  }
+
+  .close-btn:hover {
+    background: #e64a19;
+  }
+
+  /* اندازه دکمه مساوی مساوی دکمه درباره */
+  button[data-action="="] {
+    grid-column: span 4;
+    background: #ff5722;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: white;
+  }
+
+  button[data-action="="]:hover {
+    background: #e64a19;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="calculator" role="region" aria-label="ماشین حساب">
+  <div id="display" class="display" aria-live="polite" aria-atomic="true">0</div>
+  <div class="buttons" role="group" aria-label="دکمه‌های ماشین حساب">
+    <button class="operator" data-action="clear" aria-label="پاک کردن همه">C</button>
+    <button class="operator" data-action="backspace" aria-label="حذف آخرین">⌫</button>
+    <button class="operator" data-action="(" aria-label="پرانتز باز">(</button>
+    <button class="operator" data-action=")" aria-label="پرانتز بسته">)</button>
+
+    <button data-number="7">7</button>
+    <button data-number="8">8</button>
+    <button data-number="9">9</button>
+    <button data-action="÷">÷</button>
+
+    <button data-number="4">4</button>
+    <button data-number="5">5</button>
+    <button data-number="6">6</button>
+    <button data-action="×">×</button>
+
+    <button data-number="1">1</button>
+    <button data-number="2">2</button>
+    <button data-number="3">3</button>
+    <button data-action="−">−</button>
+
+    <button data-number="0" style="grid-column: span 2;">0</button>
+    <button data-number=".">.</button>
+    <button data-action="+">+</button>
+
+    <!-- دکمه مساوی -->
+    <button data-action="=">=</button>
+  </div>
+  <button class="about-btn" id="aboutBtn" aria-label="درباره">درباره</button>
+</div>
+
+<div class="history" role="region" aria-label="تاریخچه محاسبات">
+  <h2>تاریخچه محاسبات</h2>
+  <ul id="historyList" class="history-list" tabindex="0"></ul>
+</div>
+
+<!-- مودال درباره -->
+<div id="aboutModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-describedby="aboutDesc">
+  <div class="modal-content">
+    <h3 id="aboutTitle">درباره</h3>
+    <p id="aboutDesc"><strong>نام کامل:</strong> امیر حسین بیانی مقدم<br/>
+    <strong>نام خانوادگی:</strong> بیانی مقدم<br/>
+    <strong>ایمیل پشتیبانی:</strong> xhanmceo@gmail.com</p>
+    <button class="close-btn" id="closeModal" aria-label="بستن پنجره درباره">بستن</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const historyList = document.getElementById('historyList');
+  const aboutBtn = document.getElementById('aboutBtn');
+  const aboutModal = document.getElementById('aboutModal');
+  const closeModal = document.getElementById('closeModal');
+
+  let currentInput = '';
+  let history = [];
+
+  function loadHistory() {
+    const saved = localStorage.getItem('calcHistory');
+    if (saved) {
+      try {
+        history = JSON.parse(saved);
+        renderHistory();
+      } catch(e) {
+        history = [];
+      }
+    }
+  }
+
+  function saveHistory() {
+    localStorage.setItem('calcHistory', JSON.stringify(history));
+  }
+
+  function addHistory(expression, result) {
+    history.unshift({expression, result});
+    if (history.length > 20) {
+      history.pop();
+    }
+    saveHistory();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    history.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = `${item.expression} = ${item.result}`;
+      li.title = "برای استفاده مجدد کلیک کنید";
+      li.tabIndex = 0;
+      li.addEventListener('click', () => {
+        currentInput = item.result.toString();
+        updateDisplay();
+      });
+      li.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          li.click();
+        }
+      });
+      historyList.appendChild(li);
+    });
+  }
+
+  function updateDisplay() {
+    display.textContent = currentInput || '0';
+  }
+
+  function calculate(expr) {
+    // تبدیل علامت‌ها به معادل جاوااسکریپتی
+    let jsExpr = expr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
+    try {
+      // از eval استفاده نکنیم چون خطرناک است؛ اما برای ساده بودن همین رو می‌ذارم:
+      const result = Function('"use strict";return (' + jsExpr + ')')();
+      if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+        return result;
+      } else {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  function clearInput() {
+    currentInput = '';
+    updateDisplay();
+  }
+
+  function backspaceInput() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+
+  // رویداد کلیک روی دکمه‌ها
+  document.querySelectorAll('.buttons button').forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.action;
+      const number = button.dataset.number;
+
+      if (number !== undefined) {
+        currentInput += number;
+        updateDisplay();
+      } else if (action !== undefined) {
+        switch(action) {
+          case 'clear':
+            clearInput();
+            break;
+          case 'backspace':
+            backspaceInput();
+            break;
+          case '=':
+            if (currentInput.trim() === '') return;
+            const result = calculate(currentInput);
+            if (result !== null) {
+              addHistory(currentInput, result);
+              currentInput = result.toString();
+              updateDisplay();
+            } else {
+              alert('عبارت وارد شده معتبر نیست!');
+            }
+            break;
+          default:
+            // اضافه کردن عملگرها و پرانتزها به ورودی
+            currentInput += action;
+            updateDisplay();
+        }
+      }
+    });
+  });
+
+  // دکمه درباره
+  aboutBtn.addEventListener('click', () => {
+    aboutModal.style.display = 'flex';
+  });
+
+  closeModal.addEventListener('click', () => {
+    aboutModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', e => {
+    if (e.target === aboutModal) {
+      aboutModal.style.display = 'none';
+    }
+  });
+
+  // بارگذاری تاریخچه هنگام لود صفحه
+  loadHistory();
+  updateDisplay();
+
+</script>
+
+</body>
+</html>
