@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بازی ۵: توپ پرنده</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Vazir', sans-serif;
+    overflow: hidden;
+  }
+  #gameCanvas {
+    background: radial-gradient(circle at center, #87ceeb, #1e3c72);
+    border-radius: 20px;
+    border: 3px solid #fff;
+    touch-action: none;
+  }
+  #score {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #000;
+    z-index: 10;
+  }
+  /* دکمه‌های D-Pad */
+  #dpad {
+    margin-top: 10px;
+    width: 360px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  .dpad-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    background: #2ed573;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .dpad-btn:active {
+    background: #28c76f;
+  }
+</style>
+</head>
+<body>
+
+<div id="score">امتیاز: 0</div>
+<canvas id="gameCanvas" width="360" height="640"></canvas>
+
+<!-- دکمه‌های D-Pad -->
+<div id="dpad">
+  <div id="leftBtn" class="dpad-btn">◀</div>
+  <div id="rightBtn" class="dpad-btn">▶</div>
+</div>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreDisplay = document.getElementById('score');
+
+  const gravity = 0.6;
+  let score = 0;
+
+  const ball = {
+    x: canvas.width/2,
+    y: canvas.height - 30,
+    radius: 20,
+    color: '#ff4757',
+    dy: -15,
+    dx: 3
+  };
+
+  const platform = {
+    width: 100,
+    height: 15,
+    x: (canvas.width - 100)/2,
+    y: canvas.height - 15,
+    color: '#2ed573',
+    speed: 7,
+    movingLeft: false,
+    movingRight: false
+  };
+
+  function drawBall() {
+    ctx.beginPath();
+    ctx.fillStyle = ball.color;
+    ctx.shadowColor = 'rgba(255, 71, 87, 0.7)';
+    ctx.shadowBlur = 15;
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPlatform() {
+    ctx.beginPath();
+    ctx.fillStyle = platform.color;
+    ctx.shadowColor = 'rgba(46, 213, 115, 0.7)';
+    ctx.shadowBlur = 15;
+    ctx.roundRect(platform.x, platform.y, platform.width, platform.height, 10);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+
+  function clear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function update() {
+    clear();
+
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+    ball.dy += gravity;
+
+    if(ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+      ball.dx = -ball.dx;
+    }
+
+    if(ball.y + ball.radius > platform.y &&
+       ball.x > platform.x &&
+       ball.x < platform.x + platform.width) {
+      ball.dy = -15;
+      score++;
+      scoreDisplay.textContent = 'امتیاز: ' + score;
+    }
+
+    if(ball.y - ball.radius > canvas.height) {
+      alert('بازی تمام شد! امتیاز شما: ' + score);
+      document.location.reload();
+    }
+
+    if(platform.movingLeft && platform.x > 0) {
+      platform.x -= platform.speed;
+    }
+    if(platform.movingRight && platform.x + platform.width < canvas.width) {
+      platform.x += platform.speed;
+    }
+
+    drawBall();
+    drawPlatform();
+  }
+
+  document.addEventListener('keydown', e => {
+    if(e.key === 'ArrowLeft') platform.movingLeft = true;
+    if(e.key === 'ArrowRight') platform.movingRight = true;
+  });
+  document.addEventListener('keyup', e => {
+    if(e.key === 'ArrowLeft') platform.movingLeft = false;
+    if(e.key === 'ArrowRight') platform.movingRight = false;
+  });
+
+  // حذف کنترل لمسی ساده قبلی
+  // canvas.removeEventListener('touchstart', ...);
+  // canvas.removeEventListener('touchend', ...);
+
+  // کنترل دکمه‌های D-Pad
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
+
+  function handleBtnPress(direction) {
+    if(direction === 'left') platform.movingLeft = true;
+    if(direction === 'right') platform.movingRight = true;
+  }
+  function handleBtnRelease(direction) {
+    if(direction === 'left') platform.movingLeft = false;
+    if(direction === 'right') platform.movingRight = false;
+  }
+
+  // پشتیبانی از موس و تاچ برای دکمه‌ها
+  leftBtn.addEventListener('mousedown', () => handleBtnPress('left'));
+  leftBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    handleBtnPress('left');
+  }, {passive: false});
+  leftBtn.addEventListener('mouseup', () => handleBtnRelease('left'));
+  leftBtn.addEventListener('mouseleave', () => handleBtnRelease('left'));
+  leftBtn.addEventListener('touchend', () => handleBtnRelease('left'));
+
+  rightBtn.addEventListener('mousedown', () => handleBtnPress('right'));
+  rightBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    handleBtnPress('right');
+  }, {passive: false});
+  rightBtn.addEventListener('mouseup', () => handleBtnRelease('right'));
+  rightBtn.addEventListener('mouseleave', () => handleBtnRelease('right'));
+  rightBtn.addEventListener('touchend', () => handleBtnRelease('right'));
+
+  setInterval(update, 20);
+</script>
+
+</body>
+</html>
