@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>منوی بازی با ویدئو پس‌زمینه و دکمه‌های گرافیکی</title>
+  <style>
+    /* تنظیمات پایه */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Vazir', Tahoma, sans-serif;
+      user-select: none;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      direction: rtl;
+    }
+
+    /* ویدئو پس‌زمینه */
+    #background-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+      filter: brightness(0.5);
+    }
+
+    /* لایه نیمه شفاف روی ویدئو */
+    #video-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.45);
+      z-index: -1;
+    }
+
+    /* عنوان بالای منو */
+    h1 {
+      color: #fff;
+      font-weight: 900;
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 40px;
+      text-shadow: 0 0 15px #00e6ff;
+      user-select: none;
+      width: 100%;
+    }
+
+    /* کانتینر دکمه‌ها (منو) */
+    .menu-container {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 40px 60px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 25px 40px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+
+    /* استایل دکمه‌ها */
+    .game-button {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: white;
+      font-weight: 700;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255,75,43,0.6);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      text-shadow: 0 0 5px rgba(255,255,255,0.6);
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .game-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0.2) 100%);
+      transform: rotate(25deg);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+
+    .game-button:hover {
+      background: linear-gradient(135deg, #1fd1f9, #b621fe);
+      box-shadow: 0 8px 25px rgba(182,33,254,0.7);
+      border-color: #b621fe;
+    }
+
+    .game-button:hover::before {
+      left: 150%;
+      top: 150%;
+    }
+
+    /* انیمیشن ذرات روی پس زمینه */
+    .particles {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 3px rgba(255,255,255,0.3));
+      mix-blend-mode: screen;
+    }
+
+    /* استایل مودال (پنجره درباره) */
+    .modal {
+      display: none; /* مخفی به صورت پیش‌فرض */
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #111;
+      border-radius: 15px;
+      padding: 30px 40px;
+      max-width: 400px;
+      width: 90%;
+      color: #0ff;
+      box-shadow: 0 0 30px #0ff;
+      text-align: right;
+      font-size: 18px;
+      line-height: 1.5;
+      position: relative;
+      user-select: text;
+    }
+    .modal-content h2 {
+      margin-bottom: 15px;
+      font-weight: 900;
+      font-size: 28px;
+      color: #00e6ff;
+      text-align: center;
+    }
+    .modal-content p {
+      margin-bottom: 10px;
+    }
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      color: #0ff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+    .close-btn:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ویدئو پس زمینه -->
+  <video autoplay muted loop playsinline id="background-video">
+    <source src="watermarked_preview.mp4" type="video/mp4">
+    مرورگر شما ویدئو را پشتیبانی نمی‌کند.
+  </video>
+
+  <!-- لایه نیمه شفاف -->
+  <div id="video-overlay"></div>
+
+  <div style="width: 100%; max-width: 640px; margin: auto; text-align: center;">
+    <h1>منوی بازی‌های من</h1>
+    <div class="menu-container" role="menu" aria-label="منوی بازی‌ها">
+      <a href="Games-Folder/game1.html" class="game-button" target="_blank" role="menuitem">بازی ۱: کلیک ساده</a>
+      <a href="Games-Folder/game2.html" class="game-button" target="_blank" role="menuitem">بازی ۲: حدس عدد</a>
+      <a href="Games-Folder/game3.html" class="game-button" target="_blank" role="menuitem">بازی ۳: جورچین</a>
+      <a href="Games-Folder/game4/game4.html" class="game-button" target="_blank" role="menuitem">بازی ۴: مار</a>
+      <a href="Games-Folder/game5.html" class="game-button" target="_blank" role="menuitem">بازی ۵: توپ پرنده</a>
+      <a href="Games-Folder/game6.html" class="game-button" target="_blank" role="menuitem">بازی ۶: پرش قهرمان</a>
+      <a href="Games-Folder/game7.html" class="game-button" target="_blank" role="menuitem">بازی ۷: حافظه</a>
+      <a href="Games-Folder/game8.html" class="game-button" target="_blank" role="menuitem">بازی ۸: مسابقه سرعت</a>
+      <a href="Games-Folder/game9.html" class="game-button" target="_blank" role="menuitem">بازی ۹: تیراندازی</a>
+      <a href="Games-Folder/game10/gamemenu.html" class="game-button" target="_blank" role="menuitem">دوز :بازی۹</a>
+
+      <!-- دکمه درباره -->
+      <button id="about-button" class="game-button" role="menuitem" aria-haspopup="dialog" aria-controls="about-modal">درباره</button>
+    </div>
+  </div>
+
+  <div class="particles"></div>
+
+  <!-- مودال درباره -->
+  <div id="about-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="about-title" tabindex="-1">
+    <div class="modal-content">
+      <span class="close-btn" aria-label="بستن پنجره">&times;</span>
+      <h2 id="about-title">درباره من</h2>
+      <p><strong>نام:</strong> امیرحسین بیانی مقدم</p>
+      <p><strong>ایمیل پشتیبانی</strong>xhanmceo@gmail.com</p>
+    </div>
+  </div>
+
+  <script>
+    // ایجاد انیمیشن ذرات
+    const particlesContainer = document.querySelector('.particles');
+    const numberOfParticles = 40;
+
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    for (let i = 0; i < numberOfParticles; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+
+      const size = randomRange(5, 15);
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+
+      particle.style.top = randomRange(0, 100) + 'vh';
+      particle.style.left = randomRange(0, 100) + 'vw';
+
+      const duration = randomRange(10, 30);
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const animName = `move${i}`;
+
+      particle.style.animationName = animName;
+      particle.style.animationDuration = duration + 's';
+      particle.style.animationDirection = direction > 0 ? 'normal' : 'reverse';
+
+      const keyframes = `
+        @keyframes ${animName} {
+          0% {transform: translateY(0) translateX(0);}
+          50% {transform: translateY(${direction * 20}px) translateX(${direction * 20}px);}
+          100% {transform: translateY(0) translateX(0);}
+        }
+      `;
+
+      const styleSheet = document.styleSheets[0];
+      styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+
+      particlesContainer.appendChild(particle);
+    }
+
+    // نمایش و بستن مودال درباره
+    const aboutButton = document.getElementById('about-button');
+    const aboutModal = document.getElementById('about-modal');
+    const closeBtn = aboutModal.querySelector('.close-btn');
+
+    aboutButton.addEventListener('click', () => {
+      aboutModal.classList.add('active');
+      aboutModal.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+      aboutModal.classList.remove('active');
+      aboutButton.focus();
+    });
+
+    // بستن مودال با کلید Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "Escape" && aboutModal.classList.contains('active')) {
+        aboutModal.classList.remove('active');
+        aboutButton.focus();
+      }
+    });
+
+    // جلوگیری از فوکوس خارج مودال هنگام باز بودن
+    aboutModal.addEventListener('keydown', (e) => {
+      if (e.key === "Tab") {
+        // ساده‌ترین محدودیت فوکوس روی مودال
+        e.preventDefault();
+      }
+    });
+  </script>
+
+</body>
+</html>
