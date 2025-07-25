@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>منوی بازی‌ها</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap');
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    direction: rtl;
+  }
+
+  .menu-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px 60px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 320px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-container h1 {
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 32px;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+
+  .btn {
+    background: linear-gradient(90deg, #00d2ff, #3a47d5);
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 15px 60px;
+    margin: 15px 0;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(58, 71, 213, 0.6);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+
+    width: 100%;
+    max-width: 240px;
+    text-align: center;
+  }
+
+  .btn:hover {
+    background: linear-gradient(90deg, #3a47d5, #00d2ff);
+    box-shadow: 0 10px 25px rgba(0, 210, 255, 0.9);
+  }
+
+  /* پاپ‌آپ ساده */
+  #aboutPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    width: 300px;
+    text-align: center;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+
+  #aboutPopup.active {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  #aboutPopup h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    color: #1e3c72;
+  }
+
+  #aboutPopup p {
+    font-size: 18px;
+    margin: 8px 0;
+  }
+
+  #closeBtn {
+    margin-top: 20px;
+    padding: 8px 20px;
+    background: #1e3c72;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+
+  #closeBtn:hover {
+    background: #375a9b;
+  }
+
+  /* پس‌زمینه تار */
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.6);
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="menu-container">
+  <h1>منوی بازی‌ها</h1>
+  <button class="btn" id="btnTwoPlayers">دوز دو نفره</button>
+  <button class="btn" id="btnVsBot">دوز با ربات</button>
+  <button class="btn" id="btnAbout">درباره</button>
+</div>
+
+<div id="overlay"></div>
+
+<div id="aboutPopup">
+  <h2>درباره من</h2>
+  <p><strong>نام کامل:</strong> امیر حسین بیانی مقدم</p>
+  <p><strong>ایمیل پشتیبانی:</strong> xhanmceo@gmail.com</p>
+  <button id="closeBtn">بستن</button>
+</div>
+
+<script>
+  const btnTwoPlayers = document.getElementById('btnTwoPlayers');
+  const btnVsBot = document.getElementById('btnVsBot');
+  const btnAbout = document.getElementById('btnAbout');
+  const aboutPopup = document.getElementById('aboutPopup');
+  const closeBtn = document.getElementById('closeBtn');
+  const overlay = document.getElementById('overlay');
+
+  btnTwoPlayers.addEventListener('click', () => {
+    window.location.href = 'game1.html';
+  });
+
+  btnVsBot.addEventListener('click', () => {
+    window.location.href = 'game2.html';
+  });
+
+  btnAbout.addEventListener('click', () => {
+    aboutPopup.classList.add('active');
+    overlay.classList.add('active');
+  });
+
+  closeBtn.addEventListener('click', () => {
+    aboutPopup.classList.remove('active');
+    overlay.classList.remove('active');
+  });
+
+  overlay.addEventListener('click', () => {
+    aboutPopup.classList.remove('active');
+    overlay.classList.remove('active');
+  });
+</script>
+
+</body>
+</html>
