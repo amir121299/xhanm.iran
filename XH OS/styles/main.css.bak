@@ -1,0 +1,621 @@
+/* متغیرهای CSS */
+:root {
+    /* رنگ‌های اصلی */
+    --deep-space: #050510;
+    --electric-purple: #7C3AED;
+    --neon-blue: #3B82F6;
+    --hot-pink: #EC4899;
+    --bright-teal: #14B8A6;
+    
+    /* شیشه‌ای */
+    --glass-light: rgba(255, 255, 255, 0.12);
+    --glass-heavy: rgba(255, 255, 255, 0.25);
+    --border-overlay: rgba(255, 255, 255, 0.3);
+    
+    /* متن */
+    --primary-text: #FFFFFF;
+    --secondary-text: rgba(255, 255, 255, 0.7);
+    
+    /* فاصله‌ها */
+    --safe-area-top: 48px;
+    --safe-area-bottom: 34px;
+    --grid-gap: 16px;
+    --grid-gap-vertical: 24px;
+    --side-padding: 24px;
+    
+    /* شعاع گوشه‌ها */
+    --icon-radius: 14px;
+    --card-radius: 24px;
+    --button-radius: 12px;
+}
+
+/* Reset و پایه */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    background: var(--deep-space);
+    color: var(--primary-text);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* صفحات اصلی */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ================== صفحه بوت ================== */
+#boot-screen {
+    background: linear-gradient(135deg, var(--deep-space) 0%, #1a1a2e 50%, #16213e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.boot-content {
+    text-align: center;
+    position: relative;
+}
+
+.logo-container {
+    margin-bottom: 60px;
+}
+
+.logo-text {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-blue), var(--electric-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    animation: logoGlow 2s ease-in-out infinite alternate;
+}
+
+.logo-subtitle {
+    font-size: 16px;
+    color: var(--secondary-text);
+    font-weight: 300;
+    opacity: 0.8;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--glass-light);
+    border-top: 3px solid var(--neon-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.boot-animation {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--neon-blue) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: bootPulse 3s ease-out forwards;
+    opacity: 0.3;
+}
+
+/* ================== صفحه قفل ================== */
+#lock-screen {
+    background: var(--deep-space);
+}
+
+.wallpaper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        var(--deep-space) 0%, 
+        var(--electric-purple) 30%, 
+        var(--hot-pink) 70%, 
+        var(--neon-blue) 100%);
+    animation: gradientShift 8s ease-in-out infinite;
+}
+
+.lock-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: var(--safe-area-top);
+    padding-bottom: 100px;
+    padding-left: var(--side-padding);
+    padding-right: var(--side-padding);
+}
+
+.time-display {
+    text-align: center;
+    margin-top: 100px;
+}
+
+.clock {
+    font-size: 86px;
+    font-weight: 200;
+    line-height: 1.1;
+    color: var(--primary-text);
+    margin-bottom: 16px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.date {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.unlock-hint {
+    text-align: center;
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hint-text {
+    font-size: 16px;
+    color: var(--secondary-text);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: hintBlink 2s ease-in-out infinite;
+}
+
+.home-indicator {
+    width: 130px;
+    height: 5px;
+    background: var(--glass-light);
+    border-radius: 3px;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.home-indicator:hover {
+    background: var(--primary-text);
+    transform: scale(1.1);
+}
+
+/* ================== صفحه اصلی ================== */
+#home-screen {
+    backdrop-filter: blur(0px);
+    transition: backdrop-filter 0.6s ease;
+}
+
+#home-screen.unlocked {
+    backdrop-filter: blur(20px);
+}
+
+.status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--safe-area-top);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--side-padding);
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+    backdrop-filter: blur(10px);
+}
+
+.status-left .time {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.status-right {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.app-grid {
+    position: absolute;
+    top: calc(var(--safe-area-top) + 40px);
+    left: var(--side-padding);
+    right: var(--side-padding);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--grid-gap) var(--grid-gap);
+    padding-bottom: 200px;
+}
+
+.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.app-icon:active {
+    transform: scale(0.9);
+    filter: brightness(1.1);
+}
+
+.app-icon-bg {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--icon-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-overlay);
+    transition: all 0.3s ease;
+}
+
+.app-icon:hover .app-icon-bg {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.app-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--primary-text);
+    text-align: center;
+    margin-top: 8px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* داک پایین */
+.dock {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    padding: 16px 24px;
+    background: var(--glass-heavy);
+    backdrop-filter: blur(40px);
+    border-radius: 28px;
+    border: 1px solid var(--border-overlay);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dock-app {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--glass-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-overlay);
+}
+
+.dock-app:hover {
+    transform: scale(1.1);
+    background: var(--primary-text);
+    color: var(--deep-space);
+}
+
+.home-indicator-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 5px;
+    background: var(--glass-light);
+    border-radius: 3px;
+    border: 1px solid var(--border-overlay);
+}
+
+/* ================== صفحه برنامه‌ها ================== */
+#app-screen {
+    background: var(--deep-space);
+    z-index: 500;
+}
+
+.app-header {
+    height: var(--safe-area-top);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--side-padding);
+    background: var(--glass-heavy);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-overlay);
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--primary-text);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-left: 16px;
+}
+
+.back-btn:hover {
+    background: var(--glass-light);
+}
+
+.app-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.app-content {
+    padding: var(--side-padding);
+    height: calc(100vh - var(--safe-area-top));
+    overflow-y: auto;
+}
+
+/* ================== انیمیشن‌ها ================== */
+@keyframes logoGlow {
+    0% { filter: drop-shadow(0 0 10px var(--neon-blue)); }
+    100% { filter: drop-shadow(0 0 20px var(--electric-purple)); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes bootPulse {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0);
+    }
+    50% {
+        opacity: 0.3;
+        transform: translateX(-50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(2);
+    }
+}
+
+@keyframes gradientShift {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(30deg); }
+}
+
+@keyframes hintBlink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+@keyframes appLaunch {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ================== ریسپانسیو ================== */
+@media (min-width: 768px) {
+    body {
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .screen {
+        width: 375px;
+        height: 812px;
+        position: relative;
+        border-radius: 40px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    
+    #boot-screen {
+        border: 8px solid #1a1a1a;
+        background-clip: padding-box;
+    }
+}
+
+/* ================== محتوای برنامه‌ها ================== */
+.app-page {
+    animation: appLaunch 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ساعت */
+.clock-app {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.clock-app .main-clock {
+    font-size: 72px;
+    font-weight: 200;
+    margin-bottom: 20px;
+    color: var(--primary-text);
+}
+
+.clock-app .date-display {
+    font-size: 18px;
+    color: var(--secondary-text);
+    margin-bottom: 40px;
+}
+
+.clock-app .analog-clock {
+    width: 200px;
+    height: 200px;
+    border: 3px solid var(--glass-light);
+    border-radius: 50%;
+    margin: 0 auto;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.clock-app .clock-hand {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    background: var(--primary-text);
+    border-radius: 2px;
+}
+
+.clock-app .hour-hand {
+    width: 3px;
+    height: 60px;
+    transform: translate(-50%, -100%) rotate(0deg);
+}
+
+.clock-app .minute-hand {
+    width: 2px;
+    height: 80px;
+    transform: translate(-50%, -100%) rotate(90deg);
+}
+
+/* ماشین حساب */
+.calculator {
+    max-width: 300px;
+    margin: 0 auto;
+    background: var(--glass-heavy);
+    border-radius: var(--card-radius);
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-overlay);
+}
+
+.calculator-display {
+    width: 100%;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: var(--button-radius);
+    font-size: 32px;
+    color: var(--primary-text);
+    text-align: left;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+
+.calculator-keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.calc-key {
+    height: 60px;
+    border: none;
+    border-radius: var(--button-radius);
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.calc-key.number {
+    background: var(--glass-light);
+    color: var(--primary-text);
+}
+
+.calc-key.operator {
+    background: var(--electric-purple);
+    color: white;
+}
+
+.calc-key.equals {
+    background: var(--neon-blue);
+    color: white;
+}
+
+.calc-key:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* سایر برنامه‌ها */
+.simple-app {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--glass-light);
+    border-radius: var(--card-radius);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-overlay);
+}
+
+.simple-app h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--primary-text);
+}
+
+.simple-app p {
+    color: var(--secondary-text);
+    line-height: 1.6;
+}
