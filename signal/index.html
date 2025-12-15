@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal - مبدل کد مورس</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Signal">
+    <meta name="description" content="Modern Morse Code Converter - مبدل کد مورس مدرن">
+    <meta name="keywords" content="morse code, converter, کد مورس, مبدل, signal, transmission">
+    <meta name="author" content="MiniMax Agent">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Signal - مبدل کد مورس">
+    <meta property="og:description" content="Modern Morse Code Converter with Persian and English support">
+    <meta property="og:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Signal - مبدل کد مورس">
+    <meta property="twitter:description" content="Modern Morse Code Converter with Persian and English support">
+    <meta property="twitter:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+</head>
+<body>
+    <div class="page-background">
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="hero-title">📡 Signal</h1>
+                <p class="hero-subtitle">مبدل کد مورس مدرن</p>
+            </header>
+
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+                <div class="toggle-container">
+                    <button class="toggle-btn active" data-lang="fa">
+                        <span class="toggle-text">فارسی</span>
+                    </button>
+                    <button class="toggle-btn" data-lang="en">
+                        <span class="toggle-text">English</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Converter -->
+            <main class="converter-section">
+                <div class="converter-card">
+                    <!-- Input Section -->
+                    <div class="input-section">
+                        <label class="input-label" id="input-label">متن خود را وارد کنید</label>
+                        <textarea 
+                            id="input-text" 
+                            class="input-field" 
+                            placeholder="اینجا تایپ کنید..."
+                            dir="rtl"
+                        ></textarea>
+                    </div>
+
+                    <!-- Control Bar -->
+                    <div class="control-bar">
+                        <div class="control-buttons">
+                            <button class="control-btn play-btn" id="play-btn" title="پخش صدا">
+                                <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                <svg class="stop-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M6 6h12v12H6z"/>
+                                </svg>
+                            </button>
+                            <button class="control-btn" id="copy-btn" title="کپی">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                            </button>
+                            <button class="control-btn" id="swap-btn" title="تغییر جهت">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7 7h11l-3.5-3.5L16.5 2 23 8.5 16.5 15l-1.5-1.5L18 10H7V7zM17 17H6l3.5 3.5L7.5 22 1 15.5 7.5 9l1.5 1.5L6 14h11v3z"/>
+                                </svg>
+                            </button>
+                            <button class="control-btn" id="clear-btn" title="پاک کردن">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Output Section -->
+                    <div class="output-section">
+                        <label class="output-label" id="output-label">کد مورس</label>
+                        <textarea 
+                            id="output-text" 
+                            class="output-field" 
+                            placeholder="..." 
+                            dir="ltr"
+                            readonly
+                        ></textarea>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Reference Table -->
+            <section class="reference-section">
+                <h2 class="section-title">جدول مرجع کد مورس</h2>
+                <div class="reference-grid" id="reference-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p class="footer-text">signal by XH</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
