@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XH OS - سیستم عامل نسل جدید</title>
+    <link rel="stylesheet" href="styles/enhanced.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- کانتینر اصلی گوشی -->
+    <div class="phone-container">
+        <!-- صفحه بوت -->
+        <div id="boot-screen" class="screen active">
+            <div class="boot-wallpaper">
+                <div class="boot-gradient"></div>
+                <div class="boot-particles"></div>
+            </div>
+            <div class="boot-content">
+                <div class="boot-logo-container">
+                    <div class="boot-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="logo-text">XH OS</div>
+                    </div>
+                    <div class="boot-subtitle">سیستم عامل هوشمند</div>
+                </div>
+                <div class="boot-loader">
+                    <div class="loader-ring">
+                        <div class="loader-dot"></div>
+                        <div class="loader-dot"></div>
+                        <div class="loader-dot"></div>
+                    </div>
+                </div>
+                <div class="boot-version">نسخه 8.0</div>
+            </div>
+        </div>
+
+        <!-- صفحه قفل -->
+        <div id="lock-screen" class="screen">
+            <div class="lock-wallpaper">
+                <div class="wallpaper-image"></div>
+                <div class="lock-overlay"></div>
+            </div>
+            <div class="lock-content">
+                <div class="lock-top">
+                    <div class="status-icons">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <i class="fas fa-battery-three-quarters"></i>
+                    </div>
+                    <div class="lock-time">
+                        <div class="time-digital">۱۲:۰۰</div>
+                        <div class="time-analog">
+                            <div class="analog-face">
+                                <div class="analog-hour"></div>
+                                <div class="analog-minute"></div>
+                                <div class="analog-center"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lock-date">یکشنبه، ۱۶ دسامبر</div>
+                </div>
+                <div class="lock-center">
+                    <div class="unlock-area">
+                        <div class="unlock-hint">
+                            <div class="hint-icon">
+                                <i class="fas fa-chevron-up"></i>
+                            </div>
+                            <div class="hint-text">برای باز کردن به بالا بکشید</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lock-bottom">
+                    <div class="quick-actions">
+                        <button class="quick-action" id="camera-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <button class="quick-action" id="flashlight-btn">
+                            <i class="fas fa-lightbulb"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحه اصلی -->
+        <div id="home-screen" class="screen">
+            <div class="home-wallpaper">
+                <div class="wallpaper-blur"></div>
+            </div>
+            
+            <!-- نوار وضعیت -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <div class="time-display">۱۲:۰۰</div>
+                </div>
+                <div class="status-right">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+
+            <!-- بخش سلامتی -->
+            <div class="widget-section">
+                <div class="health-widget">
+                    <div class="widget-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="widget-text">
+                        <div class="widget-title">سلامتی</div>
+                        <div class="widget-subtitle">۸,۴۲۱ قدم امروز</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شبکه برنامه‌ها -->
+            <div class="app-grid">
+                <!-- ردیف اول -->
+                <div class="app-icon" data-app="phone">
+                    <div class="app-bg">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="app-name">تلفن</div>
+                </div>
+
+                <div class="app-icon" data-app="contacts">
+                    <div class="app-bg">
+                        <i class="fas fa-address-book"></i>
+                    </div>
+                    <div class="app-name">مخاطبین</div>
+                </div>
+
+                <div class="app-icon" data-app="messages">
+                    <div class="app-bg">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="app-name">پیام‌رسان</div>
+                </div>
+
+                <div class="app-icon" data-app="browser">
+                    <div class="app-bg">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="app-name">اینترنت</div>
+                </div>
+
+                <!-- ردیف دوم -->
+                <div class="app-icon" data-app="camera">
+                    <div class="app-bg">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="app-name">دوربین</div>
+                </div>
+
+                <div class="app-icon" data-app="gallery">
+                    <div class="app-bg">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="app-name">گالری</div>
+                </div>
+
+                <div class="app-icon" data-app="music">
+                    <div class="app-bg">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="app-name">موسیقی</div>
+                </div>
+
+                <div class="app-icon" data-app="weather">
+                    <div class="app-bg">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <div class="app-name">آب و هوا</div>
+                </div>
+
+                <!-- ردیف سوم -->
+                <div class="app-icon" data-app="clock">
+                    <div class="app-bg">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="app-name">ساعت</div>
+                </div>
+
+                <div class="app-icon" data-app="calendar">
+                    <div class="app-bg">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="app-name">تقویم</div>
+                </div>
+
+                <div class="app-icon" data-app="calculator">
+                    <div class="app-bg">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="app-name">ماشین حساب</div>
+                </div>
+
+                <div class="app-icon" data-app="settings">
+                    <div class="app-bg">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="app-name">تنظیمات</div>
+                </div>
+
+                <!-- ردیف چهارم -->
+                <div class="app-icon" data-app="notes">
+                    <div class="app-bg">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <div class="app-name">یادداشت</div>
+                </div>
+
+                <div class="app-icon" data-app="maps">
+                    <div class="app-bg">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <div class="app-name">نقشه</div>
+                </div>
+
+                <div class="app-icon" data-app="files">
+                    <div class="app-bg">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="app-name">فایل‌ها</div>
+                </div>
+
+                <div class="app-icon" data-app="store">
+                    <div class="app-bg">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="app-name">فروشگاه</div>
+                </div>
+            </div>
+
+            <!-- داک برنامه‌ها -->
+            <div class="dock">
+                <div class="dock-bg"></div>
+                <div class="dock-apps">
+                    <div class="dock-app" data-app="phone">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="dock-app" data-app="messages">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="dock-app" data-app="camera">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="dock-app" data-app="music">
+                        <i class="fas fa-music"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نوار هوم -->
+            <div class="home-indicator"></div>
+        </div>
+
+        <!-- صفحه برنامه‌ها -->
+        <div id="app-screen" class="screen">
+            <div class="app-header">
+                <button class="header-back" id="back-btn">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="header-title">برنامه</div>
+                <div class="header-actions">
+                    <button class="header-action">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="app-content">
+                <!-- محتوای برنامه‌ها اینجا بارگذاری می‌شود -->
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/enhanced.js"></script>
+</body>
+</html>
