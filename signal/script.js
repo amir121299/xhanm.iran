@@ -1,397 +1,219 @@
-// Morse Code Converter - JavaScript Implementation
 class MorseConverter {
     constructor() {
-        this.currentMode = 'fa'; // 'fa' for Persian, 'en' for English
+        this.currentMode = 'en';
         this.isPlaying = false;
         this.audioContext = null;
         this.currentSource = null;
-        
-        // Morse code mappings
-        this.morseMap = {
-            // English letters and numbers
-            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-            'Y': '-.--', 'Z': '--..',
-            '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
-            '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
-            
-            // Persian letters
+        this.flashElement = document.createElement('div');
+        this.flashElement.style.position = 'fixed';
+        this.flashElement.style.top = 0;
+        this.flashElement.style.left = 0;
+        this.flashElement.style.width = '100%';
+        this.flashElement.style.height = '100%';
+        this.flashElement.style.background = 'yellow';
+        this.flashElement.style.opacity = 0;
+        this.flashElement.style.pointerEvents = 'none';
+        this.flashElement.style.transition = 'opacity 0.05s ease';
+        document.body.appendChild(this.flashElement);
+
+        this.farsiMap = {
             'آ': '.-', 'ا': '.-', 'ب': '-...', 'پ': '.--.', 'ت': '-', 'ث': '-...',
             'ج': '.---', 'چ': '---.', 'ح': '....', 'خ': '----', 'د': '-..',
             'ذ': '..--..', 'ر': '.-.', 'ز': '--..', 'ژ': '---.', 'س': '...',
             'ش': '----', 'ص': '...-.', 'ض': '-..-.', 'ط': '-.--', 'ظ': '-.--.',
             'ع': '...-..', 'غ': '--..-.', 'ف': '..-.', 'ق': '--.-', 'ک': '-.-',
             'گ': '--.', 'ل': '.-..', 'م': '--', 'ن': '-.', 'و': '.--', 'ه': '....',
-            'ی': '-.--', 'ئ': '.--..', 'ء': '.', 'ة': '-', 'ة': '..-.',
-            
-            // Common punctuation
+            'ی': '-.--', 'ء': '.', 'ئ': '.--..', 'ة': '-'
+        };
+
+        this.englishMap = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..',
+            '0': '-----','1': '.----','2': '..---','3': '...--','4': '....-',
+            '5': '.....','6': '-....','7': '--...','8': '---..','9': '----.',
             '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.',
             '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
             '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-',
             '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.',
-            '$': '...-..-', '@': '.--.-.', '¿': '..-.-', '¡': '--...-'
+            '$': '...-..-', '@': '.--.-.'
         };
-        
-        // Reverse mapping
-        this.textMap = {};
-        Object.keys(this.morseMap).forEach(key => {
-            this.textMap[this.morseMap[key]] = key;
-        });
-        
-        this.initializeEventListeners();
-        this.generateReferenceTable();
+
+        this.reverseFarsiMap = this.reverseMap(this.farsiMap);
+        this.reverseEnglishMap = this.reverseMap(this.englishMap);
+
+        this.init();
+    }
+
+    reverseMap(map){
+        const rev = {};
+        for (const key in map) rev[map[key]] = key;
+        return rev;
+    }
+
+    init() {
         this.updatePlaceholders();
+        this.generateReferenceTable();
+        this.addEventListeners();
     }
-    
-    initializeEventListeners() {
-        // Language toggle
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchLanguage(e.target.dataset.lang));
+
+    addEventListeners() {
+        document.querySelectorAll('.toggle-btn').forEach(btn=>{
+            btn.addEventListener('click',()=>this.switchLanguage(btn.dataset.lang));
         });
-        
-        // Input field
-        const inputText = document.getElementById('input-text');
-        inputText.addEventListener('input', () => this.convertText());
-        
-        // Control buttons
-        document.getElementById('play-btn').addEventListener('click', () => this.togglePlay());
-        document.getElementById('copy-btn').addEventListener('click', () => this.copyOutput());
-        document.getElementById('swap-btn').addEventListener('click', () => this.swapDirection());
-        document.getElementById('clear-btn').addEventListener('click', () => this.clearFields());
-        
-        // Reference cards
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.reference-card')) {
-                const card = e.target.closest('.reference-card');
-                const letter = card.querySelector('.reference-letter').textContent;
-                const morse = card.querySelector('.reference-morse').textContent;
-                this.insertToInput(letter, morse);
-            }
-        });
+        document.getElementById('input-text').addEventListener('input',()=>this.convertText());
+        document.getElementById('copy-btn').addEventListener('click',()=>this.copyOutput());
+        document.getElementById('swap-btn').addEventListener('click',()=>this.swapDirection());
+        document.getElementById('clear-btn').addEventListener('click',()=>this.clearFields());
+        document.getElementById('play-btn').addEventListener('click',()=>this.togglePlay());
     }
-    
-    switchLanguage(lang) {
-        if (this.currentMode === lang) return;
-        
+
+    switchLanguage(lang){
         this.currentMode = lang;
-        
-        // Update toggle buttons
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.lang === lang) {
-                btn.classList.add('active');
-            }
-        });
-        
-        // Update body direction and font
-        const body = document.body;
-        if (lang === 'en') {
-            body.classList.add('english-mode');
-            body.style.direction = 'ltr';
-        } else {
-            body.classList.remove('english-mode');
-            body.style.direction = 'rtl';
-        }
-        
+        document.querySelectorAll('.toggle-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
+        document.body.classList.toggle('english-mode', lang==='en');
+        document.body.style.direction = lang==='en'?'ltr':'rtl';
         this.updatePlaceholders();
         this.convertText();
         this.generateReferenceTable();
     }
-    
-    updatePlaceholders() {
-        const inputField = document.getElementById('input-text');
-        const outputField = document.getElementById('output-text');
-        const inputLabel = document.getElementById('input-label');
-        const outputLabel = document.getElementById('output-label');
-        
-        if (this.currentMode === 'fa') {
-            inputField.placeholder = 'اینجا تایپ کنید...';
-            inputField.dir = 'rtl';
-            inputLabel.textContent = 'متن خود را وارد کنید';
-            outputLabel.textContent = 'کد مورس';
-        } else {
-            inputField.placeholder = 'Type here...';
-            inputField.dir = 'ltr';
-            inputLabel.textContent = 'Enter your text';
-            outputLabel.textContent = 'Morse code';
-        }
-        
-        outputField.dir = 'ltr';
-    }
-    
-    convertText() {
-        const inputText = document.getElementById('input-text').value.trim();
-        const outputField = document.getElementById('output-text');
-        
-        if (!inputText) {
-            outputField.value = '';
-            return;
-        }
-        
-        if (this.isMorseCode(inputText)) {
-            // Convert Morse to text
-            outputField.value = this.morseToText(inputText);
-        } else {
-            // Convert text to Morse
-            outputField.value = this.textToMorse(inputText);
+
+    updatePlaceholders(){
+        const input=document.getElementById('input-text');
+        const inputLabel=document.getElementById('input-label');
+        const outputLabel=document.getElementById('output-label');
+        if(this.currentMode==='fa'){
+            input.placeholder='اینجا تایپ کنید...';
+            input.dir='rtl';
+            inputLabel.textContent='متن خود را وارد کنید';
+            outputLabel.textContent='کد مورس';
+        }else{
+            input.placeholder='Type here...';
+            input.dir='ltr';
+            inputLabel.textContent='Enter your text';
+            outputLabel.textContent='Morse code';
         }
     }
-    
-    textToMorse(text) {
-        const words = text.split(' ');
-        const morseWords = words.map(word => {
-            const morseChars = Array.from(word.toUpperCase()).map(char => {
-                if (this.morseMap[char]) {
-                    return this.morseMap[char];
-                } else if (char === ' ') {
-                    return '/';
-                } else {
-                    // Return the character itself if not found in mapping
-                    return char;
-                }
-            });
-            return morseChars.join(' ');
-        });
-        return morseWords.join('   '); // Triple space for word separation
+
+    convertText(){
+        const input=document.getElementById('input-text').value.trim();
+        const output=document.getElementById('output-text');
+        if(!input){ output.value=''; return; }
+        const isMorse=/^[.\-\/\s]+$/.test(input);
+        if(isMorse) output.value=this.morseToText(input);
+        else output.value=this.textToMorse(input);
     }
-    
-    morseToText(morse) {
-        const words = morse.split(' / ');
-        const textWords = words.map(word => {
-            const chars = word.trim().split(/\s+/);
-            const textChars = chars.map(code => {
-                return this.textMap[code] || code;
-            });
-            return textChars.join('');
-        });
-        return textWords.join(' ');
+
+    textToMorse(text){
+        const map=this.currentMode==='fa'?this.farsiMap:this.englishMap;
+        return text.split('').map(c=>{
+            const ch=this.currentMode==='fa'?c:c.toUpperCase();
+            if(map[ch]) return map[ch];
+            else if(c===' ') return '/';
+            return c;
+        }).join(' ');
     }
-    
-    isMorseCode(text) {
-        // Check if text contains only valid Morse characters
-        const morsePattern = /^[.\-\/\s]+$/;
-        return morsePattern.test(text) && text.includes('.') || text.includes('-');
+
+    morseToText(morse){
+        const revMap=this.currentMode==='fa'?this.reverseFarsiMap:this.reverseEnglishMap;
+        return morse.split(' / ').map(word=>{
+            return word.trim().split(/\s+/).map(symbol=>revMap[symbol]||symbol).join('');
+        }).join(' ');
     }
-    
-    generateReferenceTable() {
-        const grid = document.getElementById('reference-grid');
-        grid.innerHTML = '';
-        
-        let characters = [];
-        if (this.currentMode === 'fa') {
-            characters = ['آ', 'ا', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'گ', 'ل', 'م', 'ن', 'و', 'ه', 'ی', 'ئ', 'ء', 'ة'];
-        } else {
-            characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    async togglePlay(){
+        if(this.isPlaying){ this.stopAudio(); return; }
+        const morse=document.getElementById('output-text').value.trim();
+        if(!morse){ this.showToast(this.currentMode==='fa'?'متنی برای پخش وجود ندارد':'No text to play','error'); return; }
+        this.isPlaying=true;
+        document.getElementById('play-btn').classList.add('playing');
+
+        this.audioContext=new (window.AudioContext||window.webkitAudioContext)();
+        await this.audioContext.resume();
+
+        const chars=morse.split('');
+        let currentTime=this.audioContext.currentTime;
+
+        for(let i=0;i<chars.length && this.isPlaying;i++){
+            const c=chars[i];
+            if(c==='.'){ await this.playTone(currentTime,0.15); currentTime+=0.25; }
+            else if(c==='-'){ await this.playTone(currentTime,0.45); currentTime+=0.55; }
+            else if(c===' '){ currentTime+=0.2; }
+            else if(c==='/'){ currentTime+=0.6; }
+            currentTime+=0.05;
         }
-        
-        characters.forEach(char => {
-            if (this.morseMap[char]) {
-                const card = document.createElement('div');
-                card.className = 'reference-card';
-                card.tabIndex = 0;
-                card.innerHTML = `
-                    <div class="reference-letter">${char}</div>
-                    <div class="reference-morse">${this.morseMap[char]}</div>
-                `;
-                grid.appendChild(card);
-            }
+
+        this.isPlaying=false;
+        document.getElementById('play-btn').classList.remove('playing');
+    }
+
+    playTone(start,duration){
+        return new Promise(resolve=>{
+            const osc=this.audioContext.createOscillator();
+            const gain=this.audioContext.createGain();
+            osc.connect(gain); gain.connect(this.audioContext.destination);
+            osc.type='sine';
+            osc.frequency.setValueAtTime(600,start);
+            gain.gain.setValueAtTime(0,start);
+            gain.gain.linearRampToValueAtTime(0.3,start+0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001,start+duration);
+            osc.start(start); osc.stop(start+duration);
+
+            // نور چشمک زن
+            this.flashElement.style.opacity = 0.6;
+            setTimeout(()=>this.flashElement.style.opacity=0, duration*1000);
+
+            osc.onended=resolve;
         });
     }
-    
-    insertToInput(letter, morse) {
-        const inputField = document.getElementById('input-text');
-        const currentValue = inputField.value;
-        const cursorPos = inputField.selectionStart;
-        
-        if (this.currentMode === 'en' && letter.match(/[A-Z0-9]/)) {
-            inputField.value = currentValue.slice(0, cursorPos) + letter + currentValue.slice(cursorPos);
-        } else if (this.currentMode === 'fa' && letter.match(/[آ-ی]/)) {
-            inputField.value = currentValue.slice(0, cursorPos) + letter + currentValue.slice(cursorPos);
-        }
-        
-        inputField.focus();
-        inputField.selectionStart = inputField.selectionEnd = cursorPos + 1;
+
+    stopAudio(){
+        this.isPlaying=false;
+        if(this.audioContext){ this.audioContext.close(); this.audioContext=null; }
+        document.getElementById('play-btn').classList.remove('playing');
+    }
+
+    copyOutput(){
+        const text=document.getElementById('output-text').value;
+        if(!text) return this.showToast(this.currentMode==='fa'?'متنی برای کپی وجود ندارد':'No text to copy','error');
+        navigator.clipboard.writeText(text).then(()=>this.showToast(this.currentMode==='fa'?'کپی شد!':'Copied!'));
+    }
+
+    swapDirection(){
+        const input=document.getElementById('input-text');
+        const output=document.getElementById('output-text');
+        [input.value,output.value]=[output.value,input.value];
         this.convertText();
+        this.showToast(this.currentMode==='fa'?'تغییر جهت انجام شد':'Direction swapped');
     }
-    
-    async togglePlay() {
-        if (this.isPlaying) {
-            this.stopAudio();
-        } else {
-            await this.playMorse();
-        }
+
+    clearFields(){
+        document.getElementById('input-text').value='';
+        document.getElementById('output-text').value='';
+        this.showToast(this.currentMode==='fa'?'پاک شد':'Cleared');
     }
-    
-    async playMorse() {
-        const outputText = document.getElementById('output-text').value;
-        if (!outputText.trim()) {
-            this.showToast(this.currentMode === 'fa' ? 'متنی برای پخش وجود ندارد' : 'No text to play', 'error');
-            return;
-        }
-        
-        this.isPlaying = true;
-        const playBtn = document.getElementById('play-btn');
-        playBtn.classList.add('playing');
-        
-        try {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            await this.audioContext.resume();
-            
-            const morseChars = outputText.split('');
-            let currentTime = this.audioContext.currentTime;
-            
-            for (let i = 0; i < morseChars.length && this.isPlaying; i++) {
-                const char = morseChars[i];
-                
-                if (char === '.') {
-                    await this.playTone(currentTime, 0.1, 600);
-                    currentTime += 0.2;
-                } else if (char === '-') {
-                    await this.playTone(currentTime, 0.3, 600);
-                    currentTime += 0.4;
-                } else if (char === ' ') {
-                    currentTime += 0.3; // Gap between letters
-                } else if (char === '/') {
-                    currentTime += 0.7; // Gap between words
-                }
-                
-                // Small gap between symbols
-                currentTime += 0.1;
-            }
-            
-        } catch (error) {
-            console.error('Audio playback error:', error);
-            this.showToast(this.currentMode === 'fa' ? 'خطا در پخش صدا' : 'Audio playback error', 'error');
-        } finally {
-            this.isPlaying = false;
-            playBtn.classList.remove('playing');
-        }
+
+    showToast(msg,type='success'){
+        const toast=document.getElementById('toast');
+        toast.textContent=msg;
+        toast.className=`toast ${type} show`;
+        setTimeout(()=>toast.classList.remove('show'),3000);
     }
-    
-    async playTone(startTime, duration, frequency) {
-        return new Promise((resolve) => {
-            const oscillator = this.audioContext.createOscillator();
-            const gainNode = this.audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(frequency, startTime);
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0, startTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-            
-            oscillator.start(startTime);
-            oscillator.stop(startTime + duration);
-            
-            oscillator.onended = resolve;
+
+    generateReferenceTable(){
+        const grid=document.getElementById('reference-grid');
+        grid.innerHTML='';
+        const chars=this.currentMode==='fa'?Object.keys(this.farsiMap):Object.keys(this.englishMap);
+        chars.forEach(c=>{
+            const card=document.createElement('div');
+            card.className='reference-card';
+            card.tabIndex=0;
+            card.innerHTML=`<div class="reference-letter">${c}</div><div class="reference-morse">${this.currentMode==='fa'?this.farsiMap[c]:this.englishMap[c]}</div>`;
+            grid.appendChild(card);
         });
     }
-    
-    stopAudio() {
-        this.isPlaying = false;
-        if (this.audioContext) {
-            this.audioContext.close();
-            this.audioContext = null;
-        }
-        const playBtn = document.getElementById('play-btn');
-        playBtn.classList.remove('playing');
-    }
-    
-    async copyOutput() {
-        const outputText = document.getElementById('output-text').value;
-        if (!outputText.trim()) {
-            this.showToast(this.currentMode === 'fa' ? 'متنی برای کپی وجود ندارد' : 'No text to copy', 'error');
-            return;
-        }
-        
-        try {
-            await navigator.clipboard.writeText(outputText);
-            this.showToast(this.currentMode === 'fa' ? 'کپی شد!' : 'Copied!', 'success');
-        } catch (error) {
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = outputText;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            this.showToast(this.currentMode === 'fa' ? 'کپی شد!' : 'Copied!', 'success');
-        }
-    }
-    
-    swapDirection() {
-        const inputField = document.getElementById('input-text');
-        const outputField = document.getElementById('output-text');
-        
-        if (inputField.value && outputField.value) {
-            const temp = inputField.value;
-            inputField.value = outputField.value;
-            outputField.value = temp;
-            this.convertText();
-            this.showToast(this.currentMode === 'fa' ? 'تغییر جهت انجام شد' : 'Direction swapped', 'success');
-        }
-    }
-    
-    clearFields() {
-        document.getElementById('input-text').value = '';
-        document.getElementById('output-text').value = '';
-        this.showToast(this.currentMode === 'fa' ? 'پاک شد' : 'Cleared', 'success');
-    }
-    
-    showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        toast.classList.add('show');
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
-    }
 }
 
-// Initialize the converter when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new MorseConverter();
-});
-
-// Handle keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    // Ctrl/Cmd + C to copy output
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-        e.preventDefault();
-        document.getElementById('copy-btn').click();
-    }
-    
-    // Escape to stop audio
-    if (e.key === 'Escape') {
-        const converter = window.morseConverter;
-        if (converter && converter.isPlaying) {
-            converter.stopAudio();
-        }
-    }
-    
-    // Space to play/pause (when not typing in input)
-    if (e.key === ' ' && !e.target.matches('input, textarea')) {
-        e.preventDefault();
-        document.getElementById('play-btn').click();
-    }
-});
-
-// Service Worker for PWA (optional)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-                console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
+document.addEventListener('DOMContentLoaded',()=>window.morseConverter=new MorseConverter());
