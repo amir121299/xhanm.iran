@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Xh GitGames</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f0c29;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .menu-container {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 1000px;
+      margin: auto;
+      padding: 50px 20px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fadeInUp 1.2s forwards 0.5s;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      color: #fff;
+      text-shadow: 0 0 15px #00eeff, 0 0 30px #00eeff, 0 0 45px #00eeff;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #00eeff, 0 0 40px #00eeff;
+      }
+      to {
+        text-shadow: 0 0 20px #fff, 0 0 30px #00eeff, 0 0 40px #00eeff, 0 0 50px #00eeff;
+      }
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      position: relative;
+      padding: 20px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(45deg, #ff6b6b, #ffa502, #00d2ff);
+      background-size: 300% 300%;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-10px) rotateY(15deg) scale(1.05);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      animation: gradientShift 3s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .special-btn {
+      background: linear-gradient(45deg, #ff00cc, #333399);
+      box-shadow: 0 10px 30px rgba(255, 0, 204, 0.4);
+    }
+
+    .special-btn:hover {
+      box-shadow: 0 15px 35px rgba(255, 0, 204, 0.6);
+    }
+
+    /* Floating animation for buttons */
+    .btn {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .btn:nth-child(2) { animation-delay: 0.2s; }
+    .btn:nth-child(3) { animation-delay: 0.4s; }
+    .btn:nth-child(4) { animation-delay: 0.6s; }
+    .btn:nth-child(5) { animation-delay: 0.8s; }
+    .btn:nth-child(6) { animation-delay: 1.0s; }
+    .btn:nth-child(7) { animation-delay: 1.2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* Particle JS */
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particles.js container -->
+<div id="particles-js"></div>
+
+<div class="menu-container">
+  <h1>Xh GitGames</h1>
+  <div class="buttons">
+    <a href="XMO+/index.html" class="btn">XMO+</a>
+    <a href="PingPong/index.html" class="btn">PingPong</a>
+    <a href="MemoryGame/index.html" class="btn">MemoryGame</a>
+    <a href="ZombieGame/index.html" class="btn">ZombieGame</a>
+    <a href="js-racing-main/index.html" class="btn">js-racing-main</a>
+    <a href="forrip/index.html" class="btn special-btn">For Amo Amir</a>
+  </div>
+</div>
+
+<!-- Particles.js library -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+  particlesJS('particles-js', {
+    "particles": {
+      "number": {"value": 100, "density": {"enable": true, "value_area": 800}},
+      "color": {"value": "#ffffff"},
+      "shape": {"type": "circle"},
+      "opacity": {"value": 0.5, "random": true},
+      "size": {"value": 3, "random": true},
+      "line_linked": {
+        "enable": true,
+        "distance": 150,
+        "color": "#00eeff",
+        "opacity": 0.4,
+        "width": 1
+      },
+      "move": {
+        "enable": true,
+        "speed": 2,
+        "direction": "none",
+        "random": true,
+        "straight": false,
+        "out_mode": "out",
+        "bounce": false
+      }
+    },
+    "interactivity": {
+      "detect_on": "canvas",
+      "events": {
+        "onhover": {"enable": true, "mode": "repulse"},
+        "onclick": {"enable": true, "mode": "push"},
+        "resize": true
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
