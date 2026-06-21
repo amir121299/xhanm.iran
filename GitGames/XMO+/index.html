@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>منوی بازی</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #video-bg {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -1;
+      object-fit: cover;
+    }
+
+    .menu-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+    }
+
+    .btn {
+      display: block;
+      width: 280px;
+      padding: 18px 25px;
+      margin: 20px auto;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ff8a00, #e52e71);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(229, 46, 113, 0.6);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.4);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 15px;
+      width: 60%;
+      max-width: 500px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 0 30px #00aaff;
+      border: 2px solid #00aaff;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover, .close:focus {
+      color: white;
+    }
+
+    /* 🎵 دکمه پخش موزیک */
+    .music-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #ff6600, #ff0066);
+      color: white;
+      font-size: 18px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 0, 102, 0.5);
+      transition: 0.3s;
+      z-index: 15;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 0, 102, 0.6);
+    }
+
+    .music-btn.playing {
+      background: linear-gradient(135deg, #00c853, #b2ff59);
+      box-shadow: 0 8px 20px rgba(0, 200, 83, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Video Background -->
+  <video autoplay muted loop id="video-bg">
+    <source src="background-video.mp4" type="video/mp4">
+  </video>
+
+  <script>
+    const video = document.getElementById('video-bg');
+    video.play().catch(error => console.log("خطا در پخش ویدئو:", error));
+  </script>
+
+  <!-- Menu -->
+  <div class="menu-container">
+    <button class="btn" onclick="window.location.href='game1.html'">Minecraft 1.8</button>
+    <button class="btn" onclick="window.location.href='game2.html'">Minecraft 1.5.2</button>
+    <button class="btn" onclick="document.getElementById('aboutModal').style.display='block'">درباره</button>
+  </div>
+
+  <!-- Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="document.getElementById('aboutModal').style.display='none'">&times;</span>
+      <h2>درباره سازنده</h2>
+      <p><strong>نام و نام خانوادگی:</strong> امیرحسین بیانی مقدم</p>
+      <p><strong>ایمیل پشتیبانی:</strong> Xhanmceo@gmail.com</p>
+    </div>
+  </div>
+
+  <!-- موزیک پلیر -->
+  <audio id="musicPlayer"></audio>
+  <button id="musicBtn" class="music-btn">🎵 پخش موزیک</button>
+
+  <script>
+    const songs = [
+      "music1.mp3",
+      "music2.mp3",
+      "music3.mp3",
+      "music4.mp3",
+      "music5.mp3"
+    ];
+    let currentSong = 0;
+    const player = document.getElementById("musicPlayer");
+    const musicBtn = document.getElementById("musicBtn");
+    let isPlaying = false;
+
+    function playMusic(index) {
+      player.src = songs[index];
+      player.play();
+    }
+
+    player.addEventListener("ended", () => {
+      currentSong = (currentSong + 1) % songs.length;
+      playMusic(currentSong);
+    });
+
+    musicBtn.onclick = () => {
+      if (!isPlaying) {
+        playMusic(currentSong);
+        isPlaying = true;
+        musicBtn.classList.add("playing");
+        musicBtn.innerText = "⏸ توقف موزیک";
+      } else {
+        player.pause();
+        isPlaying = false;
+        musicBtn.classList.remove("playing");
+        musicBtn.innerText = "🎵 پخش موزیک";
+      }
+    };
+  </script>
+
+</body>
+</html>
