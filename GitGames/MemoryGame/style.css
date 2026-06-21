@@ -1,0 +1,175 @@
+*{
+	box-sizing: border-box;
+}
+body{
+	font-family: Arial, Helvetica, sans-serif;
+}
+input:focus{
+	outline: none;
+}
+input{
+	border: none;
+}
+@media only screen and (max-width: 720px) {
+	body {
+		zoom: 70%;
+	}
+}
+@media only screen and (max-width: 525px) {
+	body {
+		zoom: 60%;
+	}
+}
+@media only screen and (max-width: 445px) {
+	body {
+		zoom: 50%;
+	}
+}
+@media only screen and (max-width: 360px) {
+	body {
+		zoom: 40%;
+	}
+}
+@media only screen and (max-width: 300px) {
+	body {
+		zoom: 30%;
+	}
+}
+.splash{
+	position: fixed;
+	background-color: rgba(21, 106, 176, 0.594);
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: white;
+}
+.splash input[type="submit"] {
+	background-color: rgb(27, 124, 203);
+	color: white;
+	padding: 12px 6px;
+	border-radius: 10px;
+	width: 100px;
+	cursor: pointer;
+	font-size: 20px;
+}
+.head{
+	text-align: center;
+	text-decoration-line: underline;
+	font-size: 32px;
+	color: #2195F3;
+}
+
+.blocks-container{
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(4, 1fr);
+	gap: 20px;
+	max-width: 95%;
+	margin: 10px auto;
+}
+.blocks-container .block{
+	transform-style: preserve-3d;
+	height: 150px;
+	position: relative;
+	cursor: pointer;
+	transition: transform 0.5s;
+}
+
+.blocks-container .block .back{
+	transform: rotateY(180deg);
+	background-color: rgb(22, 37, 34);
+}
+.blocks-container .block .back img{
+	margin: 25px 0;
+}
+.blocks-container .block .front{
+	background-color: #333;
+	line-height: 150px;
+}
+.blocks-container .block .front::before{
+	content: '?';
+	font-size: 80px;
+	font-weight: bold;	
+	color: white;
+}
+.blocks-container .block .face{
+	border:5px solid #2195F3;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	backface-visibility: hidden;
+	text-align: center;
+}
+.blocks-container .block.flip{
+	transform: rotateY(180deg);
+}
+.blocks-container .block.banned,
+.blocks-container .block.success{
+	pointer-events: none;
+	cursor: none;
+}
+
+.info{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	max-width: 95%;
+	margin: 20px auto 0;
+	background-color: #f6f6f6;
+	padding: 20px;
+	border:2px solid #2195F3;
+	font-size: 24px;
+	flex-wrap: wrap;
+}
+.info div{
+	padding: 10px;
+	border: 1px solid #2195F3;
+	margin: 5px;	
+}
+#speed{
+	font-size: 24px;
+	width: 110px;
+	height: 36px;
+	border: 2px solid rgb(33, 149, 243);
+}
+#speed option{
+	display: block;
+	padding-right: 4px;
+}
+
+
+
+
+#splashScreen {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	font-size: 100px;
+	text-decoration-line: underline;
+	background-color: rgba(33, 149, 243, 0.7);
+	color: white;
+	text-align: center;
+	padding-top: 20%;
+	animation: fade_in_show 1s;
+}
+
+@keyframes fade_in_show {
+	0% {
+		opacity: 0;
+		transform: scale(0)
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1)
+	}
+}
