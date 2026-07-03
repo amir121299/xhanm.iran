@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>XH-ANM</title>
+  <title>XH-ANM | نسخه ژیروسکوپ واقعی</title>
   <link rel="icon" href="Untitled.png" type="image/png">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&family=Orbitron:wght@700;900&display=swap');
@@ -110,6 +110,7 @@
       filter: drop-shadow(0 0 25px rgba(0, 255, 204, 0.5));
       animation: sweep 6s linear infinite;
       will-change: transform;
+      transition: transform 0.1s ease-out;
     }
 
     @keyframes sweep {
@@ -178,6 +179,7 @@
       color: var(--secondary);
     }
 
+    /* --- رفع مشکل قفل شدن و طراحی پایدار اسلایدر زبان آیفون --- */
     .language-switcher {
       position: relative;
       display: inline-flex;
@@ -189,7 +191,7 @@
       width: fit-content;
       align-self: center;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      direction: ltr !important;
+      direction: ltr !important; /* جهت همیشه چپ به راست می‌مونه تا انیمیشن خراب نشه */
     }
 
     .slider-bg {
@@ -203,9 +205,10 @@
       transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
       z-index: 1;
       box-shadow: 0 2px 10px rgba(0, 255, 204, 0.3);
-      transform: translateX(100%);
+      transform: translateX(100%); /* پیش‌فرض روی حالت EN یعنی سمت راست */
     }
 
+    /* وقتی بدنه کلاس انگلیسی نداره (یعنی روی حالت FA است)، اسلایدر میاد سمت چپ */
     body:not(.english) .slider-bg {
       transform: translateX(0%);
     }
@@ -407,7 +410,34 @@
     }
     animate();
 
-    // --- ۳. مدیریت مودال درباره من ---
+    // --- ۳. ژیروسکوپ گوشی واقعی و فیلتر شده ---
+    const siteTitle = document.getElementById('site-title');
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.beta !== null && e.gamma !== null) {
+          let tiltX = e.gamma; 
+          let tiltY = e.beta - 60; 
+
+          targetX = Math.min(Math.max(tiltX, -25), 25) * 0.8;
+          targetY = Math.min(Math.max(tiltY, -25), 25) * 0.8;
+        }
+      });
+    }
+
+    function renderGyro() {
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+
+      siteTitle.style.transform = `rotateY(${currentX}deg) rotateX(${-currentY}deg) translateZ(30px)`;
+
+      requestAnimationFrame(renderGyro);
+    }
+    renderGyro();
+
+    // --- ۴. مدیریت مودال درباره من ---
     const aboutBtn = document.getElementById('about-btn');
     const aboutModal = document.getElementById('about-modal');
     const closeModal = document.getElementById('close-modal');
@@ -426,7 +456,7 @@
     closeModal.addEventListener('click', hideModal);
     window.addEventListener('click', (e) => { if (e.target === aboutModal) hideModal(); });
 
-    // --- ۴. مدیریت سوییچر زبان بدون باگ ---
+    // --- ۵. مدیریت سوییچر زبان بدون باگ ---
     function switchLang(lang) {
       const btnFa = document.getElementById('btn-fa');
       const btnEn = document.getElementById('btn-en');
