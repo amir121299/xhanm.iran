@@ -5,183 +5,283 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ماشین حساب پیشرفته</title>
 <style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     direction: rtl;
-    font-family: Tahoma, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #222;
-    color: #eee;
-    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #090615;
+    background: radial-gradient(circle at center, #161033 0%, #07040d 100%);
+    color: #f1f1f1;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .calculator {
-    background: #393e46;
-    border-radius: 12px;
+    gap: 30px;
     padding: 20px;
-    width: 340px;
-    box-shadow: 0 0 15px #00adb5;
   }
 
+  /* استایل شیشه‌ای نئون برای بدنه اصلی */
+  .calculator, .history {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 24px;
+    width: 350px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
+                0 0 20px rgba(0, 173, 181, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .calculator:hover, .history:hover {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 
+                0 0 30px rgba(0, 173, 181, 0.2);
+  }
+
+  /* صفحه نمایشگر مدرن و عمیق */
   .display {
-    background: #222831;
-    height: 60px;
-    border-radius: 8px;
-    font-size: 2rem;
-    padding: 10px;
-    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    height: 75px;
+    border-radius: 16px;
+    font-size: 2.4rem;
+    font-weight: 600;
+    padding: 15px 20px;
+    margin-bottom: 20px;
     overflow-x: auto;
+    overflow-y: hidden;
     user-select: none;
     white-space: nowrap;
+    text-align: left;
+    direction: ltr;
+    color: #00fff2;
+    text-shadow: 0 0 10px rgba(0, 255, 242, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  /* اسکرول بار باریک برای نمایشگر */
+  .display::-webkit-scrollbar {
+    height: 4px;
+  }
+  .display::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 242, 0.3);
+    border-radius: 2px;
   }
 
   .buttons {
-    direction: ltr; /* دکمه‌ها به صورت چپ به راست */
+    direction: ltr;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px; /* فاصله بین دکمه‌ها */
+    gap: 12px;
   }
 
+  /* استایل پایه دکمه‌ها */
   button {
-    background: #00adb5;
-    border: none;
-    border-radius: 8px;
-    padding: 18px;
-    font-size: 1.3rem;
-    color: #222831;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #e0e0e0;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
   }
 
-  button.operator {
-    background: #30475e;
-    color: #eeeeee;
+  /* دکمه‌های اعداد */
+  button[data-number] {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  button[data-number]:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
   }
 
-  button:hover {
-    background: #007f8c;
+  /* دکمه‌های عملگر اصلی ریاضی */
+  button.operator, button[data-action="+"], button[data-action="−"], button[data-action="×"], button[data-action="÷"] {
+    background: rgba(0, 173, 181, 0.12);
+    border: 1px solid rgba(0, 173, 181, 0.2);
+    color: #00adb5;
+  }
+  
+  button.operator:hover, button[data-action="+"]:hover, button[data-action="−"]:hover, button[data-action="×"]:hover, button[data-action="÷"]:hover {
+    background: #00adb5;
+    color: #090615;
+    box-shadow: 0 0 20px rgba(0, 173, 181, 0.4);
+  }
+
+  /* کلیدهای خاص سی و پاک کردن حافظه */
+  button[data-action="clear"], button[data-action="backspace"] {
+    background: rgba(255, 7, 110, 0.1);
+    border: 1px solid rgba(255, 7, 110, 0.2);
+    color: #ff076e;
+  }
+  button[data-action="clear"]:hover, button[data-action="backspace"]:hover {
+    background: #ff076e;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 7, 110, 0.4);
+  }
+
+  /* دکمه مساوی حماسی */
+  button[data-action="="] {
+    grid-column: span 4;
+    background: linear-gradient(45deg, #ff5722, #ff7849);
+    border: none;
+    font-weight: bold;
     color: white;
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+  }
+
+  button[data-action="="]:hover {
+    background: linear-gradient(45deg, #e64a19, #ff5722);
+    box-shadow: 0 6px 25px rgba(255, 87, 34, 0.5);
+    transform: translateY(-2px);
   }
 
   button:active {
     transform: scale(0.95);
   }
 
+  /* دکمه درباره */
+  .about-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 15px;
+    width: 100%;
+    font-weight: 600;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 1.1rem;
+    color: #aaa;
+    transition: all 0.3s;
+  }
+
+  .about-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  /* لیست تاریخچه */
   .history {
-    background: #393e46;
-    border-radius: 12px;
-    padding: 20px;
-    width: 340px;
-    max-height: 400px;
-    overflow-y: auto;
-    box-shadow: 0 0 15px #00adb5;
+    max-height: 485px;
+    display: flex;
+    flex-direction: column;
   }
 
   .history h2 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #00adb5;
-    padding-bottom: 6px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 10px;
+    color: #00adb5;
   }
 
   .history-list {
     list-style: none;
-    padding: 0;
-    margin: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-left: 5px;
+  }
+
+  .history-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .history-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
   }
 
   .history-list li {
-    padding: 8px 12px;
-    border-bottom: 1px solid #555;
+    padding: 12px;
+    border-radius: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 6px;
+    transition: all 0.2s;
+    direction: ltr;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.15);
   }
 
   .history-list li:hover {
-    background: #00adb5;
-    color: #222831;
+    background: rgba(0, 173, 181, 0.15);
+    color: #00fff2;
+    transform: translateX(3px);
   }
 
-  .about-btn {
-    background: #ff5722;
-    margin-top: 15px;
-    width: 100%;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 1.2rem;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .about-btn:hover {
-    background: #e64a19;
-  }
-
+  /* پنجره مودال پاپ‌آپ */
   .modal {
     display: none;
     position: fixed;
     z-index: 9999;
     left: 0; top: 0;
     width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.8);
+    background: rgba(5, 3, 10, 0.85);
+    backdrop-filter: blur(10px);
     justify-content: center;
     align-items: center;
   }
 
   .modal-content {
-    background: #393e46;
-    padding: 30px 40px;
-    border-radius: 14px;
-    box-shadow: 0 0 30px #00adb5;
+    background: #120e24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 35px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
     max-width: 400px;
+    width: 90%;
     text-align: center;
-    color: #eeeeee;
+    animation: modalGlow 0.4s ease;
+  }
+
+  @keyframes modalGlow {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 
   .modal-content h3 {
-    margin-top: 0;
     margin-bottom: 20px;
-    font-size: 2rem;
+    font-size: 1.8rem;
+    color: #ff5722;
+  }
+
+  .modal-content p {
+    line-height: 1.8;
+    color: #ccc;
+    font-size: 1.05rem;
   }
 
   .close-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
+    margin-top: 25px;
+    padding: 12px 30px;
     background: #ff5722;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     font-weight: bold;
     color: white;
+    transition: all 0.2s;
   }
 
   .close-btn:hover {
     background: #e64a19;
+    box-shadow: 0 0 15px rgba(255, 87, 34, 0.4);
   }
-
-  /* اندازه دکمه مساوی مساوی دکمه درباره */
-  button[data-action="="] {
-    grid-column: span 4;
-    background: #ff5722;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: white;
-  }
-
-  button[data-action="="]:hover {
-    background: #e64a19;
-  }
-
 </style>
 </head>
 <body>
@@ -213,10 +313,9 @@
     <button data-number=".">.</button>
     <button data-action="+">+</button>
 
-    <!-- دکمه مساوی -->
     <button data-action="=">=</button>
   </div>
-  <button class="about-btn" id="aboutBtn" aria-label="درباره">درباره</button>
+  <button class="about-btn" id="aboutBtn" aria-label="درباره">درباره سازنده</button>
 </div>
 
 <div class="history" role="region" aria-label="تاریخچه محاسبات">
@@ -224,14 +323,12 @@
   <ul id="historyList" class="history-list" tabindex="0"></ul>
 </div>
 
-<!-- مودال درباره -->
 <div id="aboutModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-describedby="aboutDesc">
   <div class="modal-content">
-    <h3 id="aboutTitle">درباره</h3>
-    <p id="aboutDesc"><strong>نام کامل:</strong> امیر حسین بیانی مقدم<br/>
-    <strong>نام خانوادگی:</strong> بیانی مقدم<br/>
+    <h3 id="aboutTitle">درباره سازنده</h3>
+    <p id="aboutDesc"><strong>نام و نام خانوادگی:</strong> امیر حسین بیانی مقدم<br/>
     <strong>ایمیل پشتیبانی:</strong> xhanmceo@gmail.com</p>
-    <button class="close-btn" id="closeModal" aria-label="بستن پنجره درباره">بستن</button>
+    <button class="close-btn" id="closeModal" aria-label="بستن پنجره درباره">بستن پنجره</button>
   </div>
 </div>
 
@@ -293,16 +390,17 @@
 
   function updateDisplay() {
     display.textContent = currentInput || '0';
+    // اسکرول اتوماتیک به سمت راست به هنگام طولانی شدن عدد ورودی
+    display.scrollLeft = display.scrollWidth;
   }
 
   function calculate(expr) {
-    // تبدیل علامت‌ها به معادل جاوااسکریپتی
     let jsExpr = expr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
     try {
-      // از eval استفاده نکنیم چون خطرناک است؛ اما برای ساده بودن همین رو می‌ذارم:
       const result = Function('"use strict";return (' + jsExpr + ')')();
       if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-        return result;
+        // گرد کردن اعشارهای خیلی طولانی برای تمیزتر شدن خروجی
+        return Number(result.toFixed(8).replace(/\.?0+$/, ''));
       } else {
         return null;
       }
@@ -321,7 +419,6 @@
     updateDisplay();
   }
 
-  // رویداد کلیک روی دکمه‌ها
   document.querySelectorAll('.buttons button').forEach(button => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
@@ -350,7 +447,6 @@
             }
             break;
           default:
-            // اضافه کردن عملگرها و پرانتزها به ورودی
             currentInput += action;
             updateDisplay();
         }
@@ -358,7 +454,6 @@
     });
   });
 
-  // دکمه درباره
   aboutBtn.addEventListener('click', () => {
     aboutModal.style.display = 'flex';
   });
@@ -373,10 +468,8 @@
     }
   });
 
-  // بارگذاری تاریخچه هنگام لود صفحه
   loadHistory();
   updateDisplay();
-
 </script>
 
 </body>
