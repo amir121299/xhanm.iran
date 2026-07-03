@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Xh GitGames</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
     * {
       margin: 0;
@@ -13,21 +13,23 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #0f0c29;
-      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      background: #0a051b;
+      background: linear-gradient(135deg, #050112 0%, #0d0826 50%, #1a0b36 100%);
       height: 100vh;
       overflow: hidden;
       position: relative;
     }
 
-    canvas {
+    /* بهینه‌سازی کانتینر ذرات برای رندر سریع‌تر */
+    #particles-js {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
-      z-index: 0;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none; /* برای عدم تداخل با کلیک دکمه‌ها */
     }
 
     .menu-container {
@@ -35,12 +37,16 @@
       z-index: 10;
       width: 90%;
       max-width: 1000px;
-      margin: auto;
-      padding: 50px 20px;
-      text-align: center;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
       opacity: 0;
-      transform: translateY(50px);
-      animation: fadeInUp 1.2s forwards 0.5s;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
 
     @keyframes fadeInUp {
@@ -51,116 +57,113 @@
     }
 
     h1 {
-      font-size: 3.5rem;
+      font-size: 4rem;
+      font-weight: 800;
       color: #fff;
-      text-shadow: 0 0 15px #00eeff, 0 0 30px #00eeff, 0 0 45px #00eeff;
-      margin-bottom: 40px;
-      letter-spacing: 2px;
-      animation: glow 2s infinite alternate;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 50px;
+      text-shadow: 0 0 10px rgba(0, 238, 255, 0.5), 0 0 30px rgba(0, 238, 255, 0.3);
+      background: linear-gradient(to right, #fff 20%, #00eeff 50%, #fff 80%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
     }
 
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #00eeff, 0 0 40px #00eeff;
-      }
-      to {
-        text-shadow: 0 0 20px #fff, 0 0 30px #00eeff, 0 0 40px #00eeff, 0 0 50px #00eeff;
-      }
+    @keyframes shine {
+      to { background-position: 200% center; }
     }
 
     .buttons {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 25px;
-      margin-top: 30px;
+      width: 100%;
     }
 
+    /* طراحی استایل نئون-شیشه‌ای مدرن (Glassmorphism) */
     .btn {
       position: relative;
-      padding: 20px;
-      font-size: 1.4rem;
+      padding: 22px;
+      font-size: 1.3rem;
       font-weight: 600;
-      color: #fff;
-      background: linear-gradient(45deg, #ff6b6b, #ffa502, #00d2ff);
-      background-size: 300% 300%;
-      border: none;
-      border-radius: 15px;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
       cursor: pointer;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      transform-style: preserve-3d;
-      perspective: 1000px;
       text-decoration: none;
       display: block;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      overflow: hidden;
     }
 
+    /* خط درخشان دور دکمه هنگام هاور */
     .btn::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: 0.5s;
-    }
-
-    .btn:hover::before {
-      left: 100%;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 16px;
+      padding: 2px;
+      background: linear-gradient(45deg, #00eeff, #ff0077);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .btn:hover {
-      transform: translateY(-10px) rotateY(15deg) scale(1.05);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-      animation: gradientShift 3s ease infinite;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 238, 255, 0.2);
     }
 
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .btn:hover::before {
+      opacity: 1;
     }
 
+    /* دکمه اختصاصی عمو امیر با افکت نئون بنفش و صورتی متمایز */
     .special-btn {
-      background: linear-gradient(45deg, #ff00cc, #333399);
-      box-shadow: 0 10px 30px rgba(255, 0, 204, 0.4);
+      background: rgba(255, 0, 128, 0.05);
+      border: 1px solid rgba(255, 0, 128, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(255, 0, 128, 0.1);
+    }
+
+    .special-btn::before {
+      background: linear-gradient(45deg, #ff0077, #7000ff);
     }
 
     .special-btn:hover {
-      box-shadow: 0 15px 35px rgba(255, 0, 204, 0.6);
+      background: rgba(255, 0, 128, 0.15);
+      box-shadow: 0 12px 35px rgba(255, 0, 128, 0.4);
     }
 
-    /* Floating animation for buttons */
-    .btn {
-      animation: float 4s ease-in-out infinite;
+    /* انیمیشن شناور بهینه‌شده گروهی برای جلوگیری از لگ */
+    .buttons {
+      animation: floatContainer 5s ease-in-out infinite;
     }
 
-    .btn:nth-child(2) { animation-delay: 0.2s; }
-    .btn:nth-child(3) { animation-delay: 0.4s; }
-    .btn:nth-child(4) { animation-delay: 0.6s; }
-    .btn:nth-child(5) { animation-delay: 0.8s; }
-    .btn:nth-child(6) { animation-delay: 1.0s; }
-    .btn:nth-child(7) { animation-delay: 1.2s; }
-
-    @keyframes float {
+    @keyframes floatContainer {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
+      50% { transform: translateY(-8px); }
     }
 
-    /* Particle JS */
-    #particles-js {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: inherit;
-      z-index: 1;
+    /* ریسپانسیو فوق‌العاده برای گوشی */
+    @media (max-width: 600px) {
+      h1 { font-size: 2.5rem; margin-bottom: 30px; }
+      .btn { padding: 16px; font-size: 1.1rem; }
+      .buttons { gap: 15px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Particles.js container -->
 <div id="particles-js"></div>
 
 <div class="menu-container">
@@ -175,26 +178,26 @@
   </div>
 </div>
 
-<!-- Particles.js library -->
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
+  // بهینه‌سازی تعداد ذرات پارتیکل برای افزایش چشمگیر سرعت لود و فریم‌ریت صفحه
   particlesJS('particles-js', {
     "particles": {
-      "number": {"value": 100, "density": {"enable": true, "value_area": 800}},
-      "color": {"value": "#ffffff"},
+      "number": {"value": 50, "density": {"enable": true, "value_area": 800}},
+      "color": {"value": "#00eeff"},
       "shape": {"type": "circle"},
-      "opacity": {"value": 0.5, "random": true},
-      "size": {"value": 3, "random": true},
+      "opacity": {"value": 0.3, "random": true},
+      "size": {"value": 2, "random": true},
       "line_linked": {
         "enable": true,
-        "distance": 150,
+        "distance": 130,
         "color": "#00eeff",
-        "opacity": 0.4,
+        "opacity": 0.2,
         "width": 1
       },
       "move": {
         "enable": true,
-        "speed": 2,
+        "speed": 1.5,
         "direction": "none",
         "random": true,
         "straight": false,
@@ -203,11 +206,14 @@
       }
     },
     "interactivity": {
-      "detect_on": "canvas",
+      "detect_on": "window",
       "events": {
-        "onhover": {"enable": true, "mode": "repulse"},
+        "onhover": {"enable": true, "mode": "grab"},
         "onclick": {"enable": true, "mode": "push"},
         "resize": true
+      },
+      "modes": {
+        "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } }
       }
     }
   });
