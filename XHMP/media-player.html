@@ -1,121 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Media Player XH-ANM</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #121212;
-    }
-    .player {
-      width: 400px;
-      height: 250px;
-      background-color: #222;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-      position: relative;
-    }
-    .intro {
-      font-size: 3em;
-      color: white;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 1;
-      animation: introAnimation 3s forwards;
-    }
-    @keyframes introAnimation {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    .button-container {
-      position: absolute;
-      bottom: 20px; /* تنظیم فاصله دکمه از پایین */
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .choose-file-button {
-      width: 150px;
-      height: 50px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease-in-out;
-    }
-    .choose-file-button:hover {
-      background-color: #0056b3;
-      transform: scale(1.1);
-    }
-    video, img, audio {
-      width: 100%;
-      height: 100%;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XH-MP | مدیا پلیر حرفه‌ای</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #0284c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* بخش دریافت لینک فوق‌العاده مدرن */
+        .input-box {
+            display: flex;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            direction: ltr;
+        }
+
+        .input-box input::placeholder {
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        .input-box button {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .input-box button:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        /* باکس پلیر */
+        .wrapper {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #000;
+        }
+
+        /* شخصی‌سازی رنگ اصلی پلیر Plyr به آبی جذاب */
+        :root {
+            --plyr-color-main: #0284c7;
+        }
+    </style>
 </head>
 <body>
-  <div class="player">
-    <div class="intro">Xh-Anm</div>
-    <video id="video" controls>
-      Your browser does not support the video tag.
-    </video>
-    <img id="image" alt="Selected Image" />
-    <audio id="audio" controls>
-      Your browser does not support the audio element.
-    </audio>
-  </div>
 
-  <div class="button-container">
-    <input type="file" id="fileInput" class="choose-file-button" accept="audio/*,video/*,image/*" onchange="loadMedia()" value="Browse" />
-  </div>
+    <div class="container">
+        <h1>مدیا پلیر هوشمند XH-MP</h1>
 
-  <script>
-    window.onload = () => {
-      const introText = document.querySelector('.intro');
-      setTimeout(() => {
-        introText.style.opacity = '0';
-      }, 3000);  // بعد از 3 ثانیه کلمه Xh محو می‌شود
-    };
+        <div class="input-box">
+            <input type="text" id="video-url" placeholder="لینک مستقیم ویدیو یا پخش زنده (MP4, MKV, m3u8) را وارد کنید...">
+            <button id="load-btn">بارگذاری و پخش</button>
+        </div>
 
-    function loadMedia() {
-      const fileInput = document.getElementById('fileInput');
-      const video = document.getElementById('video');
-      const image = document.getElementById('image');
-      const audio = document.getElementById('audio');
-      
-      const file = fileInput.files[0];
-      const fileType = file.type;
+        <div class="wrapper">
+            <video id="player" playsinline controls data-poster="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+            </video>
+        </div>
+    </div>
 
-      // مخفی کردن تمام عناصر قبلی
-      video.style.display = 'none';
-      image.style.display = 'none';
-      audio.style.display = 'none';
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-      // بررسی نوع فایل و بارگذاری
-      if (fileType.startsWith('video')) {
-        video.style.display = 'block';
-        video.src = URL.createObjectURL(file);
-        video.play();
-      } else if (fileType.startsWith('image')) {
-        image.style.display = 'block';
-        image.src = URL.createObjectURL(file);
-      } else if (fileType.startsWith('audio')) {
-        audio.style.display = 'block';
-        audio.src = URL.createObjectURL(file);
-        audio.play();
-      }
-    }
-  </script>
+    <script>
+        const videoElement = document.getElementById('player');
+        const urlInput = document.getElementById('video-url');
+        const loadBtn = document.getElementById('load-btn');
+        
+        // راه‌اندازی اولیه پلیر آماده با تمام قابلیت‌ها
+        let player = new Plyr(videoElement, {
+            controls: ['play-large', 'restart', 'rewind', 'play', 'fast-forward', 'progress', 'current-time', 'duration', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            settings: ['captions', 'quality', 'speed', 'loop'],
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+        });
+
+        let hlsInstance = null;
+
+        // تابع هوشمند برای بارگذاری انواع فرمت‌ها و لینک‌ها
+        function loadVideo(url) {
+            if (!url) return;
+
+            // اگر موتور HLS از قبل فعال بوده، اول آن را پاک میکنیم
+            if (hlsInstance) {
+                hlsInstance.destroy();
+            }
+
+            // تشخیص اینکه آیا لینک فرمت پخش زنده یا m3u8 است
+            if (url.includes('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hlsInstance = new Hls();
+                    hlsInstance.loadSource(url);
+                    hlsInstance.attachMedia(videoElement);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        player.play();
+                    });
+                } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                    // برای مرورگرهای اپل (سافاری) که پیش‌فرض m3u8 بلدند
+                    videoElement.src = url;
+                    player.play();
+                }
+            } else {
+                // برای فرمت‌های عادی مثل MP4, MKV, WebM
+                videoElement.src = url;
+                player.play();
+            }
+        }
+
+        // دکمه کلیک برای بارگذاری لینک جدید امیر
+        loadBtn.addEventListener('click', () => {
+            const newUrl = urlInput.value.trim();
+            loadVideo(newUrl);
+        });
+
+        // امکان زدن کلید اینتر به جای کلیک روی دکمه
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadVideo(urlInput.value.trim());
+            }
+        });
+    </script>
 </body>
 </html>
