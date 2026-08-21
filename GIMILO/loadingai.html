@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            outline: none;
+            border: none;
+        }
+        
+        body {
+            background-color: #000000;
+            font-family: system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .main-container {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* حل مشکل خط زیر ویدیو در موبایل */
+            line-height: 0;
+            font-size: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        /* ویدیوی پس‌زمینه برای بازتاب نور (Ambient Glow) */
+        video.ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(60px) brightness(1.3) saturate(1.8);
+            opacity: 0.6;
+            transform: scale(1.12);
+            z-index: 1;
+            pointer-events: none;
+            display: none;
+            vertical-align: bottom;
+        }
+
+        /* ویدیوی اصلی */
+        video.main-video {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            pointer-events: none !important;
+            vertical-align: bottom;
+        }
+
+        /* غیرفعال کردن تمامی کنترل‌های ویدیو */
+        video::-webkit-media-controls,
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
+
+        /* لایه شفاف محافظ */
+        .click-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            cursor: pointer;
+        }
+        
+        /* انیمیشن لودینگ (بدون متن) */
+        .loader-box {
+            position: absolute;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid #00d2ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- ویدیوی بلور شده پشت برای بازتاب نور -->
+        <video id="glowVideo" class="ambient-glow" muted playsinline aria-hidden="true">
+            <source src="video.mp4" type="video/mp4">
+        </video>
+
+        <!-- انیمیشن لودینگ (فقط اسپینر چرخنده) -->
+        <div id="loader" class="loader-box">
+            <div class="spinner"></div>
+        </div>
+        
+        <!-- ویدیوی اصلی -->
+        <video id="aiVideo" class="main-video" muted playsinline preload="auto">
+            <source src="video.mp4" type="video/mp4">
+            مرورگر شما از ویدیو پشتیبانی نمی‌کند.
+        </video>
+
+        <!-- لایه محافظ کلیک -->
+        <div id="overlay" class="click-overlay"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('aiVideo');
+        const glowVideo = document.getElementById('glowVideo');
+        const loader = document.getElementById('loader');
+        const overlay = document.getElementById('overlay');
+
+        const destinationUrl = "ai.html"; 
+
+        function forcePlay() {
+            if (video.paused && !video.ended) {
+                video.play().catch(() => {});
+            }
+            if (glowVideo.paused && !glowVideo.ended) {
+                glowVideo.play().catch(() => {});
+            }
+        }
+
+        // همگام‌سازی فریم‌های ویدیو اصلی و نور
+        video.addEventListener('timeupdate', () => {
+            if (Math.abs(video.currentTime - glowVideo.currentTime) > 0.1) {
+                glowVideo.currentTime = video.currentTime;
+            }
+        });
+
+        // ۱. وقتی ویدیو آماده‌ی پخش شد
+        video.addEventListener('canplaythrough', () => {
+            loader.style.display = 'none';
+            video.style.display = 'block';
+            glowVideo.style.display = 'block';
+            overlay.style.display = 'block';
+            forcePlay();
+        });
+
+        // ۲. قفل کردن استپ
+        video.addEventListener('pause', forcePlay);
+        video.addEventListener('waiting', forcePlay);
+
+        // ۳. وصل شدن صدا با اولین کلیک
+        const handleFirstInteraction = (e) => {
+            e.preventDefault();
+            if (video.muted) {
+                video.muted = false;
+            }
+            forcePlay();
+
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        };
+
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        // ۴. قفل کیبورد
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'KeyK') {
+                e.preventDefault();
+                forcePlay();
+            }
+        });
+
+        // ۵. انتقال به ai.html
+        video.addEventListener('ended', () => {
+            window.location.href = destinationUrl;
+        });
+    </script>
+</body>
+</html>
