@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gimilo AI Chat</title>
 <style>
-  /* استایل‌های پایه و پس‌زمینه طبیعت تصادفی */
+  /* استایل‌های پایه و پس‌زمینه */
   body {
     margin: 0;
     height: 100vh;
@@ -15,271 +15,243 @@
     font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
     display: flex;
     justify-content: center;
-    color: #e2e8f0;
+    color: #f8fafc;
     overflow: hidden;
+    position: relative;
   }
 
-  /* کلاس تم شیشه‌ای آیفون (Glassmorphism) */
-  .glass {
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.3);
+  /* لایه تاریک ملایم روی پس‌زمینه */
+  body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
+    z-index: -1;
   }
+
+  /* کلاس تم شیشه‌ای */
+  .glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  /* پنجره اخطار VPN */
+  #vpnModal {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; padding: 15px 25px; border-radius: 20px;
+    display: flex; align-items: center; gap: 20px;
+    animation: slideDown 0.5s ease-out;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(0, 0, 0, 0.5));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  #vpnModal p { margin: 0; font-size: 0.95rem; font-weight: 500; }
+  #closeVpnBtn { cursor: pointer; font-size: 1.5rem; font-weight: bold; color: #fca5a5; transition: 0.3s; }
+  #closeVpnBtn:hover { transform: scale(1.1); color: #fff; }
+  @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+  /* هشدار تغییر مدل */
+  #confirmModal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+    z-index: 2000; padding: 30px 40px; border-radius: 24px;
+    text-align: center; display: none; flex-direction: column; gap: 25px;
+    opacity: 0; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  #confirmModal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  #confirmModal p { margin: 0; font-size: 1.15rem; font-weight: bold; color: #fff; }
+  .modal-buttons { display: flex; justify-content: center; gap: 15px; }
+  .modal-buttons button {
+    padding: 10px 30px; border: none; border-radius: 12px;
+    font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s;
+  }
+  #btnYes { background: rgba(239, 68, 68, 0.8); color: white; border: 1px solid rgba(239, 68, 68, 0.5); }
+  #btnYes:hover { background: rgba(220, 38, 38, 1); transform: translateY(-2px); }
+  #btnNo { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+  #btnNo:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
 
   /* کانتینر اصلی */
   .container {
-    width: 100%;
-    max-width: 850px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* حالت اولیه: مرکز صفحه */
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
+    width: 100%; max-width: 900px; height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; 
+    align-items: center; padding: 20px; box-sizing: border-box;
     transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
+  .container.chatting { justify-content: flex-start; padding-top: 20px; padding-bottom: 30px; }
 
-  /* حالت چت (پس از ارسال اولین پیام) */
-  .container.chatting {
-    justify-content: flex-start;
-    padding-top: 20px;
-    padding-bottom: 30px;
-  }
+  /* انیمیشن لوگو */
+  .logo-container { margin-bottom: 40px; transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; justify-content: center; align-items: center; }
+  .logo-container img { height: 150px; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); animation: floatLogo 4s ease-in-out infinite; }
+  @keyframes floatLogo { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+  .container.chatting .logo-container { margin-bottom: 15px; }
+  .container.chatting .logo-container img { height: 50px; animation: none; }
 
-  /* هدر و لوگو */
-  .logo-container {
-    margin-bottom: 40px;
-    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .logo-container img {
-    height: 140px; /* لوگوی بزرگ در ابتدا */
-    object-fit: contain;
-    transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-  }
-
-  /* وقتی وارد حالت چت می‌شویم، لوگو کوچک شده و بالا می‌رود */
-  .container.chatting .logo-container {
-    margin-bottom: 15px;
-  }
-  .container.chatting .logo-container img {
-    height: 50px;
-  }
-
-  /* باکس اصلی چت */
   #chatBox {
-    width: 100%;
-    display: none; /* مخفی در حالت اولیه */
-    flex: 1;
-    border-radius: 24px;
-    padding: 25px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    flex-direction: column;
-    gap: 16px;
-    scroll-behavior: smooth;
+    width: 100%; display: none; flex: 1; border-radius: 24px; padding: 25px;
+    overflow-y: auto; margin-bottom: 20px; flex-direction: column; gap: 20px; scroll-behavior: smooth;
+  }
+  .container.chatting #chatBox { display: flex; animation: fadeIn 0.8s ease forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ساختار پیام‌ها */
+  .msg-wrapper {
+    display: flex; flex-direction: column; max-width: 85%;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .msg-wrapper.user { align-self: flex-start; }
+  .msg-wrapper.ai { align-self: flex-end; }
+  
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.9) translateY(15px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .container.chatting #chatBox {
-    display: flex;
-    animation: fadeIn 0.8s ease forwards;
+  .msg-content { 
+    padding: 15px 22px; border-radius: 22px; line-height: 1.7; 
+    font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15); word-wrap: break-word;
+  }
+  .msg-content strong { font-weight: 800; font-size: 1.05em; color: #fff; }
+
+  .msg-wrapper.user .msg-content { 
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(14, 165, 233, 0.15)); 
+    border: 1px solid rgba(56, 189, 248, 0.3); border-top-right-radius: 4px; backdrop-filter: blur(15px); color: #f8fafc;
+  }
+  .msg-wrapper.ai .msg-content { 
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)); 
+    border: 1px solid rgba(255, 255, 255, 0.2); border-top-left-radius: 4px; backdrop-filter: blur(15px); color: #f8fafc;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* --- دکمه‌های هاور روی پیام (کپی) --- */
+  .msg-actions {
+    display: flex; gap: 8px; margin-top: 8px; padding: 0 10px;
+    opacity: 0; visibility: hidden; transition: all 0.3s ease;
   }
+  .msg-wrapper.user .msg-actions { justify-content: flex-start; }
+  .msg-wrapper.ai .msg-actions { justify-content: flex-end; }
+  
+  .msg-wrapper:hover .msg-actions { opacity: 1; visibility: visible; }
 
-  /* پیام‌ها */
-  .msg { 
-    padding: 14px 20px;
-    border-radius: 20px;
-    line-height: 1.7; 
-    white-space: pre-wrap; 
-    max-width: 85%;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  .action-icon {
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #cbd5e1; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+    transition: 0.3s; display: flex; align-items: center; justify-content: center;
   }
-  .msg.user { 
-    align-self: flex-start; 
-    background: rgba(56, 189, 248, 0.25); 
-    border: 1px solid rgba(56, 189, 248, 0.4);
-    color: #f8fafc;
-    border-top-right-radius: 4px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  .msg.ai { 
-    align-self: flex-end; 
-    background: rgba(255, 255, 255, 0.12); 
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #f8fafc;
-    border-top-left-radius: 4px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
+  .action-icon:hover { background: rgba(255, 255, 255, 0.25); color: #fff; transform: scale(1.1); }
+  .action-icon svg { width: 16px; height: 16px; fill: currentColor; }
 
-  /* انیمیشن در حال فکر کردن (Thinking Indicator) */
+  /* استایل باکس کدهای برنامه‌نویسی */
+  .code-box {
+    background: #0f172a; border-radius: 12px; margin: 15px 0; overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+  .code-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #1e293b; padding: 8px 15px; font-size: 0.85rem; color: #94a3b8; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .code-actions { display: flex; gap: 8px; }
+  .code-btn {
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.3s;
+  }
+  .code-btn:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+  .run-btn { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+  .run-btn:hover { background: rgba(34, 197, 94, 0.4); color: #fff; }
+  .code-box pre { margin: 0; padding: 15px; overflow-x: auto; font-family: 'Consolas', monospace; color: #38bdf8; direction: ltr; text-align: left; font-size: 0.95rem; line-height: 1.5; }
+
+  /* انیمیشن در حال تایپ */
   .typing-indicator {
-    align-self: flex-end;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 16px 22px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    border-top-left-radius: 4px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    width: fit-content;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    align-self: flex-end; display: flex; align-items: center; gap: 6px;
+    padding: 16px 22px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px; border-top-left-radius: 4px; backdrop-filter: blur(15px); width: fit-content;
   }
-  .typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background-color: #cbd5e1;
-    border-radius: 50%;
-    display: inline-block;
-    animation: bounce 1.4s infinite ease-in-out both;
-  }
+  .typing-indicator span { width: 8px; height: 8px; background-color: #e2e8f0; border-radius: 50%; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; }
   .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
   .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-
-  @keyframes bounce {
-    0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-    40% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
   /* نوار ورودی */
   .input-bar {
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    align-items: center;
-    border-radius: 50px;
-    padding: 10px 15px;
-    gap: 12px;
-    transition: all 0.5s ease;
+    width: 100%; max-width: 850px; display: flex; align-items: center;
+    border-radius: 50px; padding: 12px 18px; gap: 12px; transition: all 0.5s ease;
   }
-
-  /* دکمه میکروفون */
   #micBtn {
-    background: transparent;
-    border: none;
-    color: #cbd5e1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 50%;
-    transition: 0.3s;
+    background: transparent; border: none; color: #cbd5e1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 12px;
+    border-radius: 50%; transition: 0.3s; position: relative; flex-shrink: 0;
   }
-  #micBtn:hover { color: #fff; background: rgba(255,255,255,0.15); }
-  #micBtn.recording { color: #ef4444; animation: pulse 1.5s infinite; }
+  #micBtn:hover { color: #fff; background: rgba(255,255,255,0.15); transform: scale(1.05); }
+  #micBtn.recording { color: #fff; background: #ef4444; animation: micWave 1.2s infinite ease-in-out; }
+  @keyframes micWave { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); transform: scale(1); } 50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); transform: scale(1.1); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: scale(1); } }
 
-  @keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-  }
+  #promptInput { flex: 1; padding: 10px 5px; border: none; font-size: 1.05rem; background: transparent; color: #fff; outline: none; min-width: 0; }
+  #promptInput::placeholder { color: #94a3b8; }
 
-  /* کادر تایپ */
-  #promptInput {
-    flex: 1; 
-    padding: 10px 5px; 
-    border: none;
-    font-size: 1.05rem; 
-    background: transparent; 
-    color: #fff;
-    outline: none;
-  }
-  #promptInput::placeholder {
-    color: #94a3b8;
-  }
-
-  /* منوی انتخاب مدل (بهبود یافته و زیبا شده) */
-  .custom-select-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
+  /* منوی انتخاب مدل */
+  .custom-select-wrapper { position: relative; display: flex; align-items: center; flex-shrink: 0; }
   select {
-    appearance: none;
-    -webkit-appearance: none;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #e2e8f0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 10px 15px 10px 35px; /* جای خالی در سمت چپ برای فلش */
-    border-radius: 25px;
-    outline: none;
-    cursor: pointer;
+    appearance: none; -webkit-appearance: none; background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2); color: #e2e8f0; font-size: 0.9rem;
+    font-weight: 600; padding: 10px 15px 10px 35px; border-radius: 25px; outline: none; cursor: pointer;
     transition: all 0.3s ease;
-    /* فلش سفارشی در سمت چپ برای زبان فارسی (RTL) */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: left 10px center;
-    background-size: 16px;
+    background-repeat: no-repeat; background-position: left 10px center; background-size: 16px;
   }
-  
-  select:hover { 
-    background-color: rgba(255, 255, 255, 0.15); 
-    border-color: rgba(255, 255, 255, 0.3);
-  }
+  select:hover { background: rgba(0, 0, 0, 0.4); border-color: rgba(255, 255, 255, 0.4); }
   select option { background: #1e293b; color: #fff; }
 
-  /* دکمه ارسال (فلش رو به بالا) */
-  #sendBtn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%; 
-    border: none;
-    background: rgba(255, 255, 255, 0.2); 
-    color: #fff; 
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.3s;
-    flex-shrink: 0;
+  /* دکمه ارسال و توقف */
+  .action-btn {
+    width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: 0.3s; flex-shrink: 0;
   }
-  #sendBtn:hover { background: rgba(255, 255, 255, 0.35); transform: scale(1.05); }
-  #sendBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: scale(1); }
+  #sendBtn { background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+  #sendBtn:hover { background: rgba(255,255,255,0.3); transform: scale(1.08) rotate(-10deg); }
+  #stopBtn { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; display: none; }
+  #stopBtn:hover { background: rgba(239, 68, 68, 0.4); color: #fff; transform: scale(1.08); }
 
-  /* تنظیمات اسکرول‌بار شیشه‌ای */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+  @media (max-width: 600px) {
+    .msg-actions { opacity: 1; visibility: visible; } /* در گوشی دکمه‌ها نمایان باشد */
+    .input-bar { padding: 8px 12px; gap: 8px; }
+    #promptInput { font-size: 0.95rem; }
+    select { font-size: 0.8rem; padding: 8px 10px 8px 25px; max-width: 105px; text-overflow: ellipsis; }
+    #micBtn, .action-btn { width: 40px; height: 40px; padding: 8px; }
+    #micBtn svg, .action-btn svg { width: 18px; height: 18px; }
+    .msg-content { max-width: 95%; font-size: 0.9rem; padding: 12px 18px; }
+    #chatBox { padding: 15px; }
+  }
 </style>
 </head>
 <body>
 
+<div id="vpnModal" class="glass">
+  <p>💡 برای استفاده بهتر از سایت، لطفاً فیلترشکن خود را روشن کنید.</p>
+  <span id="closeVpnBtn">&times;</span>
+</div>
+
+<!-- پنجره هشدار تغییر مدل -->
+<div id="confirmModal" class="glass">
+  <p>آیا می‌خواهید چت‌ها پاک شود؟</p>
+  <div class="modal-buttons">
+    <button id="btnYes">بله</button>
+    <button id="btnNo">خیر</button>
+  </div>
+</div>
+
 <div id="mainContainer" class="container">
   
-  <!-- لوگوی جدید شما -->
   <div class="logo-container">
     <img src="https://i.ibb.co/SXhJfXWh/Gemini-Generated-Image-r8jc2dr8jc2dr8jc-removebg-preview.png" alt="Gimilo Logo" id="logo">
   </div>
 
-  <!-- باکس چت (در ابتدا مخفی است) -->
   <div id="chatBox" class="glass"></div>
 
-  <!-- نوار ورودی شیشه‌ای -->
   <div class="input-bar glass">
-    
-    <!-- دکمه تبدیل صدا به متن (راست) -->
     <button id="micBtn" title="صحبت کنید">
       <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
         <path d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z"/>
@@ -287,165 +259,311 @@
       </svg>
     </button>
 
-    <!-- کادر جستجو (وسط) -->
     <input type="text" id="promptInput" placeholder="چه می‌خواهید بدانید؟" autocomplete="off" />
     
-    <!-- منوی انتخاب مدل (چپ - با استایل جدید) -->
     <div class="custom-select-wrapper">
+      <!-- لیست نهایی آپدیت شده (فقط Qwen ها و مدل‌های اصلی) -->
       <select id="modelSelect">
-        <option value="gemini-3.1-flash-lite">Fast ⚡</option>
-        <option value="gemini-3.5-flash">Normal ⚖️</option>
-        <option value="gemini-3.7-flash">Pro-level 🧠</option>
-        <option value="gemini-3.1-pro">Pro 🔥</option>
+        <option value="gemini-2.5-flash" selected>Gemini 2.5 (هوشمند) ⚡</option>
+        <option value="openai/gpt-oss-120b">GPT-OSS 120B (قدرتمند) 🔥</option>
+        <option value="openai/gpt-oss-20b">GPT-OSS 20B (سریع) 🚀</option>
+        <option value="qwen/qwen3.8-27b">Qwen 3.8 27B (هوشمند) 🧠</option>
+        <option value="qwen/qwen3.6-27b">Qwen 3.6 27B (منطقی) 💡</option>
       </select>
     </div>
 
-    <!-- دکمه ارسال (چپ‌ترین قسمت) -->
-    <button id="sendBtn">
+    <!-- دکمه ارسال -->
+    <button id="sendBtn" class="action-btn" title="ارسال پیام">
       <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
       </svg>
     </button>
+    
+    <!-- دکمه توقف -->
+    <button id="stopBtn" class="action-btn" title="توقف پردازش">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <rect width="10" height="10" x="3" y="3" rx="2" />
+      </svg>
+    </button>
 
   </div>
-
 </div>
 
 <script>
-  // تولید پس‌زمینه طبیعت تصادفی
+  const AI_CHARACTER = `
+  نکته مهم برای تو: 
+  1. اگر کلمه‌ای برای کاربر مهم است حتما آن را بین دو ستاره قرار بده (مثل **مهم**).
+  2. اگر خواستی کدی بنویسی، به هیچ وجه از بک‌تیک استفاده نکن. حتما کدهایت را بین سه علامت درصد قرار بده! مثال: %%%html- \n کد تو \n %%%
+  `;
+
+  // آدرس Worker
+  const WORKER_URL = "https://gimilo11222231283017.amirhosyn331.workers.dev"; 
+
+  let chatHistory = [];
+  let previousModel = document.getElementById("modelSelect").value;
+  let pendingModel = null;
+  let abortController = null; 
+
+  document.getElementById("closeVpnBtn").addEventListener("click", function() {
+    document.getElementById("vpnModal").style.display = "none";
+  });
+
   const randomSeed = Math.floor(Math.random() * 100000);
   const imageUrl = `https://picsum.photos/seed/${randomSeed}/1920/1080`;
   document.body.style.backgroundImage = `url(${imageUrl})`;
-
-  // آدرس Worker خود را بگذارید
-  const WORKER_URL = "https://gemini-proxy.YOUR-SUBDOMAIN.workers.dev"; 
 
   const mainContainer = document.getElementById("mainContainer");
   const chatBox = document.getElementById("chatBox");
   const promptInput = document.getElementById("promptInput");
   const modelSelect = document.getElementById("modelSelect");
   const sendBtn = document.getElementById("sendBtn");
+  const stopBtn = document.getElementById("stopBtn");
   const micBtn = document.getElementById("micBtn");
 
-  // افزودن پیام متنی ساده
+  // --- مکانیزم تغییر مدل ---
+  modelSelect.addEventListener("change", function(e) {
+    if (chatHistory.length > 0) {
+      pendingModel = this.value;
+      document.getElementById("confirmModal").classList.add("show");
+    } else { previousModel = this.value; }
+  });
+  document.getElementById("btnYes").addEventListener("click", () => {
+    chatHistory = []; chatBox.innerHTML = ""; mainContainer.classList.remove("chatting");
+    previousModel = pendingModel; document.getElementById("confirmModal").classList.remove("show");
+  });
+  document.getElementById("btnNo").addEventListener("click", () => {
+    modelSelect.value = previousModel; document.getElementById("confirmModal").classList.remove("show");
+  });
+  // -------------------------
+
+  // تمیز کردن متن (حذف کدها و ستاره‌ها)
+  function cleanTextForSpeech(text) {
+    // حذف تگ think و تمام فاصله‌های اطرافش
+    let clean = text.replace(/^\s*<think>[\s\S]*?(?:<\/think>|$)\s*/gi, ''); 
+    clean = clean.replace(/\s*<think>[\s\S]*?(?:<\/think>|$)\s*/gi, '');
+    
+    // تبدیل کدها به یک جمله ساده
+    clean = clean.replace(/%%%[a-zA-Z0-9+#]*?-?([\s\S]*?)%%%/g, ' در اینجا کدی نوشته شده است. '); 
+    
+    // حذف ستاره‌های بولد
+    clean = clean.replace(/\*\*/g, ''); 
+    
+    return clean.trim();
+  }
+
+  // فرمت‌بندی متن برای نمایش (کدها و بولد کردن و حذف فاصله اضافی)
+  function formatMessage(text) {
+    // جاروبرقیِ فاصله‌های Qwen! حذف کامل فکر کردن + خطوط خالیِ اضافیِ بعد از اون
+    let safeText = text.replace(/^\s*<think>[\s\S]*?(?:<\/think>|$)\s*/gi, '');
+    safeText = safeText.replace(/\s*<think>[\s\S]*?(?:<\/think>|$)\s*/gi, '');
+    safeText = safeText.trim();
+
+    safeText = safeText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    let codeBlocks = [];
+    safeText = safeText.replace(/```([a-zA-Z0-9+#]+)?\s*([\s\S]*?)```/g, function(match, lang, code) { return `%%%${lang || 'code'}-${code}%%%`; });
+    safeText = safeText.replace(/%%%([a-zA-Z0-9+#]+)?-?\s*([\s\S]*?)%%%/g, function(match, lang, code) {
+        lang = lang ? lang.toLowerCase() : 'code';
+        const blockIndex = codeBlocks.length;
+        codeBlocks.push({ lang, code });
+        return `__CODE_BLOCK_${blockIndex}__`; 
+    });
+    
+    safeText = safeText.replace(/\n/g, '<br>');
+    
+    safeText = safeText.replace(/__CODE_BLOCK_(\d+)__/g, function(match, index) {
+        const block = codeBlocks[index];
+        let buttons = `<button class="code-btn copy-btn" onclick="copyCode(this)">کپی 📋</button>`;
+        if (block.lang === 'html' || block.lang === 'htm') { buttons += `<button class="code-btn run-btn" onclick="runHTML(this)">اجرا ▶️</button>`; }
+        return `<div class="code-box"><div class="code-header"><span class="code-lang">${block.lang}</span><div class="code-actions">${buttons}</div></div><pre><code>${block.code}</code></pre></div>`;
+    });
+    return safeText;
+  }
+
+  window.copyCode = function(btn) {
+    const code = btn.closest('.code-box').querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML; btn.innerHTML = 'کپی شد ✔️'; setTimeout(() => btn.innerHTML = original, 2000);
+    });
+  };
+
+  window.runHTML = function(btn) {
+    const code = btn.closest('.code-box').querySelector('code').innerText;
+    const newWin = window.open(); newWin.document.open(); newWin.document.write(code); newWin.document.close();
+  };
+
+  // --- سیستم ساخت پیام و دکمه‌های Hover ---
   function addMessage(text, sender) {
-    const div = document.createElement("div");
-    div.className = "msg " + sender;
-    div.textContent = text;
-    chatBox.appendChild(div);
+    const wrapper = document.createElement("div");
+    wrapper.className = "msg-wrapper " + sender;
+    
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "msg-content";
+    if (sender === 'ai') contentDiv.innerHTML = formatMessage(text); 
+    else contentDiv.textContent = text; 
+    
+    wrapper.appendChild(contentDiv);
+
+    // افزودن دکمه کپی برای هوش مصنوعی
+    if (sender === 'ai') {
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "msg-actions";
+        
+        // دکمه کپی کل متن
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "action-icon";
+        copyBtn.title = "کپی پیام";
+        copyBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(cleanTextForSpeech(text)).then(() => {
+                copyBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`; // تیک
+                setTimeout(() => copyBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`, 2000);
+            });
+        };
+
+        actionsDiv.appendChild(copyBtn);
+        wrapper.appendChild(actionsDiv);
+    }
+
+    chatBox.appendChild(wrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // افزودن انیمیشن 3 نقطه (در حال تایپ/فکر کردن)
   function showTypingIndicator() {
-    const div = document.createElement("div");
-    div.className = "typing-indicator";
-    div.id = "active-typing";
-    div.innerHTML = "<span></span><span></span><span></span>";
-    chatBox.appendChild(div);
+    const wrapper = document.createElement("div");
+    wrapper.className = "typing-indicator";
+    wrapper.id = "active-typing";
+    wrapper.innerHTML = "<span></span><span></span><span></span>";
+    chatBox.appendChild(wrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // حذف انیمیشن 3 نقطه
   function hideTypingIndicator() {
     const indicator = document.getElementById("active-typing");
-    if (indicator) {
-      indicator.remove();
-    }
+    if (indicator) indicator.remove();
   }
 
-  async function sendMessage() {
-    const prompt = promptInput.value.trim();
-    const selectedModel = modelSelect.value;
-    if (!prompt) return;
+  // --- مدیریت دکمه توقف پردازش سرور ---
+  stopBtn.addEventListener("click", () => {
+    if (abortController) abortController.abort(); 
+  });
 
-    // تغییر حالت به چت در اولین پیام
+  async function sendMessage() {
+    const promptText = promptInput.value.trim();
+    const selectedModel = modelSelect.value;
+    if (!promptText) return;
+
     if (!mainContainer.classList.contains("chatting")) {
       mainContainer.classList.add("chatting");
     }
 
-    // پیام کاربر را نمایش بده
-    addMessage(prompt, "user");
+    addMessage(promptText, "user");
     promptInput.value = "";
-    sendBtn.disabled = true;
     
-    // انیمیشن فکر کردن را نشان بده
+    sendBtn.style.display = "none";
+    stopBtn.style.display = "flex";
+    
     showTypingIndicator();
+
+    chatHistory.push({ role: "user", content: promptText });
+    if (chatHistory.length > 100) chatHistory = chatHistory.slice(chatHistory.length - 100);
+
+    abortController = new AbortController();
 
     try {
       const response = await fetch(WORKER_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: prompt,
-          model: selectedModel
-        })
+        signal: abortController.signal, 
+        body: JSON.stringify({ messages: chatHistory, model: selectedModel, system_prompt: "" })
       });
 
-      if (!response.ok) {
-        throw new Error("خطا در ارتباط با سرور: " + response.status);
+      const data = await response.json();
+
+      // گرفتن مقادیر متن یا ارور به صورت استرینگ برای بررسی امن کلمات کلیدی
+      const errorMsgStr = data.error ? String(data.error) : "";
+      const textStr = data.text ? String(data.text) : "";
+      
+      // تشخیص خطای محدودیت یا بر اساس کلمات کلیدی مورد نظر شما
+      const isLimitError = response.status === 429 || data.isRateLimited || 
+                           errorMsgStr.includes("This model is currently experiencing high demand") || 
+                           errorMsgStr.includes("محدودیت") || 
+                           errorMsgStr.includes("تایمت گذشته") ||
+                           textStr.includes("This model is currently experiencing high demand") ||
+                           textStr.includes("محدودیت") ||
+                           textStr.includes("تایمت گذشته");
+
+      if (isLimitError) {
+        const tomorrow = new Date(); tomorrow.setHours(tomorrow.getHours() + 24);
+        const timeStr = tomorrow.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        hideTypingIndicator();
+        // جایگزینی خطای اصلی با پیام محدودیت
+        addMessage(`⚠️ محدودیت تکمیل شده. لطفاً فردا ساعت ${timeStr} مراجعه کنید.`, "ai");
+        chatHistory.pop(); 
+        return;
       }
 
-      const data = await response.json();
-      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || data?.error?.message || "پاسخی دریافت نشد.";
+      if (!response.ok) throw new Error(data.error || "خطا در ارتباط با سرور");
 
+      const aiText = data.text || "پاسخی دریافت نشد.";
       hideTypingIndicator();
       addMessage(aiText, "ai");
+      chatHistory.push({ role: "assistant", content: aiText });
+
     } catch (err) {
       hideTypingIndicator();
-      addMessage("خطا: " + err.message, "ai");
+      const errMsgStr = err.message ? String(err.message) : "";
+      
+      if (err.name === 'AbortError') {
+        addMessage("پاسخ‌دهی متوقف شد 🛑", "ai");
+      } else if (
+        // در صورتی که در هنگام ریکوئست نیز خطای محدودیت رخ دهد این شرط بررسی می‌کند
+        errMsgStr.includes("This model is currently experiencing high demand") || 
+        errMsgStr.includes("محدودیت") || 
+        errMsgStr.includes("تایمت گذشته")
+      ) {
+        const tomorrow = new Date(); tomorrow.setHours(tomorrow.getHours() + 24);
+        const timeStr = tomorrow.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        addMessage(`⚠️ محدودیت تکمیل شده. لطفاً فردا ساعت ${timeStr} مراجعه کنید.`, "ai");
+      } else {
+        addMessage("خطا: " + err.message, "ai");
+      }
+      chatHistory.pop(); 
     } finally {
-      sendBtn.disabled = false;
+      sendBtn.style.display = "flex";
+      stopBtn.style.display = "none";
       promptInput.focus();
     }
   }
 
   sendBtn.addEventListener("click", sendMessage);
-  promptInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+  promptInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
 
-  // قابلیت تبدیل صدا به متن (Speech to Text)
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
   if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
-    recognition.lang = 'fa-IR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.lang = 'fa-IR'; recognition.continuous = true; recognition.interimResults = false;
+    let isRecording = false;
 
-    micBtn.addEventListener('click', () => {
-      recognition.start();
+    micBtn.addEventListener('click', () => { 
+      if (isRecording) recognition.stop(); else recognition.start(); 
     });
-
-    recognition.onstart = () => {
-      micBtn.classList.add('recording');
-      promptInput.placeholder = "در حال شنیدن صدای شما...";
+    recognition.onstart = () => { 
+      isRecording = true; micBtn.classList.add('recording'); 
+      promptInput.placeholder = "در حال شنیدن... (برای پایان دوباره کلیک کنید)"; 
     };
-
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
+      const transcript = event.results[event.results.length - 1][0].transcript;
       promptInput.value = (promptInput.value + " " + transcript).trim();
     };
-
-    recognition.onspeechend = () => {
-      recognition.stop();
+    recognition.onend = () => { 
+      isRecording = false; micBtn.classList.remove('recording'); promptInput.placeholder = "چه می‌خواهید بدانید؟"; 
     };
-
-    recognition.onend = () => {
-      micBtn.classList.remove('recording');
-      promptInput.placeholder = "چه می‌خواهید بدانید؟";
+    recognition.onerror = () => {
+      isRecording = false; micBtn.classList.remove('recording'); promptInput.placeholder = "چه می‌خواهید بدانید؟";
     };
-
-    recognition.onerror = (event) => {
-      micBtn.classList.remove('recording');
-      promptInput.placeholder = "چه می‌خواهید بدانید؟";
-      alert("خطا در دریافت صدا. لطفاً دسترسی به میکروفون را بررسی کنید.");
-    };
-  } else {
-    micBtn.style.display = 'none';
-  }
+  } else { micBtn.style.display = 'none'; }
 </script>
-
 </body>
 </html>
