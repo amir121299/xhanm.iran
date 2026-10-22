@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mar.io - کمد اسکین‌ها و منو</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Vazirmatn:wght@500;700;900&display=swap');
+
+    :root {
+      --neon-cyan: #00f3ff;
+      --neon-pink: #ff0055;
+      --neon-green: #00ff66;
+      --neon-gold: #ffe600;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: #030309;
+      background-image: 
+        radial-gradient(circle at center, rgba(30, 15, 60, 0.6) 0%, rgba(3, 3, 10, 1) 100%),
+        linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      font-family: 'Vazirmatn', 'Orbitron', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    /* صفحه تاریک دور زدن محدودیت صدای مرورگر */
+    .audio-splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #020208;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .splash-box {
+      background: rgba(14, 14, 32, 0.95);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 50px rgba(0, 243, 255, 0.4);
+      padding: 45px 55px;
+      border-radius: 26px;
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+      animation: floatPulse 2s infinite alternate;
+    }
+
+    @keyframes floatPulse {
+      from { transform: scale(0.98); box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); }
+      to { transform: scale(1.02); box-shadow: 0 0 55px rgba(0, 243, 255, 0.6); }
+    }
+
+    .splash-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 15px var(--neon-cyan));
+    }
+
+    .splash-box h2 {
+      font-size: 2rem;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .splash-box p {
+      font-size: 1.05rem;
+      color: #a0b2d6;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .splash-btn {
+      padding: 16px 36px;
+      font-size: 1.25rem;
+      font-family: inherit;
+      font-weight: 900;
+      background: var(--neon-cyan);
+      color: #000;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 0 30px var(--neon-cyan);
+      transition: all 0.2s;
+    }
+
+    .splash-btn:hover {
+      transform: scale(1.05);
+      background: #fff;
+    }
+
+    /* پنل اصلی منو */
+    .menu-panel {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(12, 12, 28, 0.92);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 35px rgba(0, 243, 255, 0.35);
+      border-radius: 28px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(14px);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+
+    .record-badge {
+      background: rgba(255, 230, 0, 0.15);
+      border: 1px solid var(--neon-gold);
+      color: var(--neon-gold);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .platform-badge {
+      background: rgba(0, 243, 255, 0.15);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.4rem;
+      font-weight: 900;
+      letter-spacing: 5px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 580px;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 2px solid #222244;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #previewCanvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .name-input {
+      width: 100%;
+      max-width: 480px;
+      padding: 13px;
+      font-size: 1.2rem;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #333355;
+      border-radius: 14px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 16px;
+    }
+
+    .name-input:focus, .name-input.tv-focused {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 25px var(--neon-cyan);
+    }
+
+    .catalog-title {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 10px;
+      text-align: right;
+      width: 100%;
+    }
+
+    .skins-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .skin-item {
+      background: rgba(18, 18, 38, 0.85);
+      border: 2px solid #282845;
+      border-radius: 14px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    /* حالت انتخاب شده قطعی */
+    .skin-item.selected {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 18px var(--neon-pink);
+      transform: scale(1.06);
+    }
+
+    /* حالت فوکوس تلویزیون (نشانگر ریموت قبل از زدن OK) */
+    .skin-item.tv-cursor {
+      outline: 2.5px solid var(--neon-cyan);
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .skin-item.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+    }
+
+    .skin-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      margin-bottom: 4px;
+      border: 2px solid #fff;
+    }
+
+    .skin-name {
+      font-size: 0.72rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .lock-badge {
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      background: #ff0055;
+      font-size: 0.6rem;
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    /* برچسب NEW نئونی با خط لیزری */
+    .new-badge-container {
+      position: absolute;
+      top: -8px;
+      right: -6px;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .new-badge-tag {
+      background: rgba(5, 30, 15, 0.95);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      font-family: 'Orbitron', 'Vazirmatn', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .new-badge-line {
+      width: 10px;
+      height: 1.5px;
+      background: linear-gradient(90deg, var(--neon-green), transparent);
+      box-shadow: 0 0 6px var(--neon-green);
+    }
+
+    .play-btn {
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+      font-size: 1.35rem;
+      font-weight: 900;
+      font-family: inherit;
+      border: 2px solid var(--neon-green);
+      background: rgba(0, 255, 102, 0.15);
+      color: #fff;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.25);
+      transition: all 0.2s;
+    }
+
+    .play-btn:hover, .play-btn.tv-focused {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 35px var(--neon-green);
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      .skins-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- لایه فعال‌سازی صدا -->
+  <div class="audio-splash-screen" id="audioSplash">
+    <div class="splash-box">
+      <div class="splash-icon">🔊</div>
+      <h2>فعال‌سازی صدا و موسیقی</h2>
+      <p>جهت تجربه کامل صداگذاری و اجرای موسیقی، روی صفحه کلیک کنید یا هر دکمه‌ای (اینتر/OK) را فشار دهید.</p>
+      <button class="splash-btn" id="enterBtn">کلیک برای ورود (شروع)</button>
+    </div>
+  </div>
+
+  <div class="menu-panel">
+    <div class="top-bar">
+      <div class="platform-badge" id="platBadge">پلتفرم: ویندوز</div>
+      <div class="record-badge" id="recordBadge">بالاترین رکورد: ۰ امتیاز</div>
+    </div>
+
+    <div class="logo">Mar.IO</div>
+
+    <div class="preview-card">
+      <canvas id="previewCanvas" width="580" height="120"></canvas>
+    </div>
+
+    <input type="text" id="playerName" class="name-input" placeholder="نام خود را وارد کنید..." maxlength="14" autocomplete="off">
+
+    <div class="catalog-title">انتخاب از بین ۱۴ اسکین نئونی (برای انتخاب با ریموت، دکمه OK را بزنید):</div>
+    <div class="skins-grid" id="skinsGrid"></div>
+
+    <button class="play-btn" id="startBtn">شروع مسابقه نئونی (OK)</button>
+  </div>
+
+  <script>
+    // ==========================================
+    // ۱. سیستم صوتی و موزیک ۵۰٪
+    // ==========================================
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playButtonSound(freq = 600, duration = 0.08) {
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state !== 'running') return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    const menuMusic = new Audio('menu-music.mp3');
+    menuMusic.loop = true;
+    menuMusic.volume = 0.5;
+
+    let audioInitialized = false;
+    function activateAudioAndEnter() {
+      if (audioInitialized) return;
+      audioInitialized = true;
+
+      getAudioContext();
+      menuMusic.play().catch(e => console.log('موزیک منو منتظر فایل menu-music.mp3 است.'));
+
+      const splash = document.getElementById('audioSplash');
+      splash.style.opacity = '0';
+      setTimeout(() => { splash.style.display = 'none'; }, 400);
+
+      playButtonSound(750, 0.1);
+    }
+
+    document.getElementById('audioSplash').addEventListener('click', activateAudioAndEnter);
+    document.getElementById('enterBtn').addEventListener('click', activateAudioAndEnter);
+
+    // ==========================================
+    // ۲. ذخیره‌سازی دائمی نام در localStorage
+    // ==========================================
+    const nameInput = document.getElementById('playerName');
+    const savedPersistentName = localStorage.getItem('xhu_player_name');
+    if (savedPersistentName) {
+      nameInput.value = savedPersistentName;
+    } else {
+      nameInput.value = 'X-Hunter_' + Math.floor(100 + Math.random() * 900);
+      localStorage.setItem('xhu_player_name', nameInput.value);
+    }
+
+    nameInput.addEventListener('input', () => {
+      localStorage.setItem('xhu_player_name', nameInput.value.trim());
+    });
+
+    // دریافت پلتفرم و رکورد
+    const deviceMode = sessionStorage.getItem('xhu_device_mode') || 'windows';
+    const platBadge = document.getElementById('platBadge');
+    if (deviceMode === 'android') platBadge.innerText = '📱 دستگاه: اندروید لمسی';
+    else if (deviceMode === 'tv') platBadge.innerText = '📺 دستگاه: تلویزیون هوشمند';
+    else platBadge.innerText = '💻 دستگاه: کامپیوتر ویندوز';
+
+    const highScore = parseInt(localStorage.getItem('xhu_high_score') || '0', 10);
+    document.getElementById('recordBadge').innerText = `بالاترین رکورد: ${highScore} امتیاز`;
+
+    // بازیابی اسکین‌های دیده‌شده برای برچسب NEW
+    let seenSkins = [];
+    try {
+      seenSkins = JSON.parse(localStorage.getItem('xhu_seen_skins')) || [];
+    } catch(e) {
+      seenSkins = [];
+    }
+
+    const SKINS = [
+      { id: 'cyber', name: 'سایبر هک', type: 'normal', head: '#00f3ff', body: '#006699', glow: '#00f3ff', req: 0 },
+      { id: 'plasma', name: 'پلاسما هیدرا', type: 'normal', head: '#00ff66', body: '#006622', glow: '#00ff66', req: 0 },
+      { id: 'phantom', name: 'ویولت فانتوم', type: 'normal', head: '#a800ff', body: '#500088', glow: '#a800ff', req: 0 },
+      { id: 'lava', name: 'گدازه آتشفشان', type: 'normal', head: '#ff4400', body: '#771800', glow: '#ff4400', req: 0 },
+      { id: 'electric', name: 'الکتریک اییل', type: 'electric', head: '#ffe600', body: '#00d0ff', glow: '#ffe600', req: 250 },
+      { id: 'cobra', name: 'کبرای سیاه', type: 'normal', head: '#ff003b', body: '#1a1a24', glow: '#ff003b', req: 500 },
+      { id: 'mecha', name: 'مکا رباتیک', type: 'mecha', head: '#ffbb00', body: '#2c2c34', glow: '#ffbb00', req: 800 },
+      { id: 'ice', name: 'ققنوس یخی', type: 'ice', head: '#00ffff', body: '#0088cc', glow: '#00ffff', req: 1200 },
+      { id: 'scorpion', name: 'عقرب نئونی', type: 'normal', head: '#00ffaa', body: '#004d33', glow: '#00ffaa', req: 1800 },
+      { id: 'tiger', name: 'ببر لیزری', type: 'tiger', head: '#ff6600', body: '#111111', glow: '#ff6600', req: 2500 },
+      { id: 'void', name: 'سیاه‌چاله کیهانی', type: 'void', head: '#7700ff', body: '#ffffff', glow: '#7700ff', req: 3200 },
+      { id: 'dragon', name: 'اژدهای آتشین', type: 'dragon', head: '#ff002b', body: '#770014', glow: '#ff002b', req: 4000 },
+      { id: 'rainbow', name: 'طیف رنگین‌کمان', type: 'rainbow', glow: '#ff0055', req: 4500 },
+      { id: 'golden_king', name: 'شاهنشاه طلایی', type: 'gold_king', head: '#ffe600', body: '#b39200', glow: '#ffe600', req: 5000 }
+    ];
+
+    // بازیابی اسکین انتخاب‌شده قبلی یا پیش‌فرض
+    let selectedSkinIdx = 0;
+    const savedSkinJson = localStorage.getItem('xhu_selected_skin_idx');
+    if (savedSkinJson !== null) {
+      const parsedIdx = parseInt(savedSkinJson, 10);
+      if (parsedIdx >= 0 && parsedIdx < SKINS.length && highScore >= SKINS[parsedIdx].req) {
+        selectedSkinIdx = parsedIdx;
+      }
+    }
+
+    let tvCursorIdx = selectedSkinIdx; // نشانگر فوکوس موقت در تلویزیون
+    const grid = document.getElementById('skinsGrid');
+    const skinElements = [];
+
+    // ==========================================
+    // ۳. ساخت گرید اسکین‌ها با بج NEW
+    // ==========================================
+    SKINS.forEach((skin, idx) => {
+      const isLocked = highScore < skin.req;
+      const item = document.createElement('div');
+      item.className = `skin-item ${idx === selectedSkinIdx ? 'selected' : ''} ${isLocked ? 'locked' : ''}`;
+      
+      const dot = document.createElement('div');
+      dot.className = 'skin-dot';
+      if (skin.type === 'rainbow') {
+        dot.style.background = 'linear-gradient(45deg, #ff0055, #ffe600, #00ff66, #00f3ff)';
+      } else {
+        dot.style.background = skin.head;
+      }
+
+      const name = document.createElement('span');
+      name.className = 'skin-name';
+      name.innerText = skin.name;
+
+      // اگر قفل است
+      if (isLocked) {
+        const badge = document.createElement('div');
+        badge.className = 'lock-badge';
+        badge.innerText = `${skin.req}`;
+        item.appendChild(badge);
+      } else if (skin.req > 0 && !seenSkins.includes(skin.id)) {
+        // اگر باز شده و قبلاً روی آن کلیک نشده: برچسب NEW همراه با خط لیزری
+        const newBadge = document.createElement('div');
+        newBadge.className = 'new-badge-container';
+        newBadge.id = `new-badge-${skin.id}`;
+        newBadge.innerHTML = `
+          <div class="new-badge-tag">NEW</div>
+          <div class="new-badge-line"></div>
+        `;
+        item.appendChild(newBadge);
+      }
+
+      item.appendChild(dot);
+      item.appendChild(name);
+      grid.appendChild(item);
+      skinElements.push(item);
+
+      // انتخاب با کلیک ماوس یا لمس
+      item.addEventListener('click', () => {
+        if (isLocked) {
+          playButtonSound(300, 0.15);
+          alert(`این اسکین قفل است! برای باز شدن نیاز به کسب رکورد ${skin.req} امتیاز دارید.`);
+          return;
+        }
+        applySkinSelection(idx);
+      });
+    });
+
+    // تابع انتخاب رسمی اسکین و برداشتن برچسب NEW
+    function applySkinSelection(idx) {
+      selectedSkinIdx = idx;
+      tvCursorIdx = idx;
+
+      skinElements.forEach((el, i) => {
+        el.classList.toggle('selected', i === idx);
+      });
+
+      // ذخیره اسکین انتخابی
+      localStorage.setItem('xhu_selected_skin_idx', idx.toString());
+
+      // حذف برچسب NEW پس از باز کردن/کلیک روی اسکین
+      const currentSkin = SKINS[idx];
+      if (!seenSkins.includes(currentSkin.id)) {
+        seenSkins.push(currentSkin.id);
+        localStorage.setItem('xhu_seen_skins', JSON.stringify(seenSkins));
+
+        const badgeEl = document.getElementById(`new-badge-${currentSkin.id}`);
+        if (badgeEl) badgeEl.remove();
+      }
+
+      playButtonSound(700, 0.08);
+    }
+
+    // ==========================================
+    // ۴. پیش‌نمایش متحرک مار
+    // ==========================================
+    const pCanvas = document.getElementById('previewCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    let pTime = 0;
+
+    function renderPreview() {
+      pTime += 0.05;
+      pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+      const skin = SKINS[selectedSkinIdx];
+      const count = 16;
+      const radius = 17;
+      const cx = pCanvas.width / 2;
+      const cy = pCanvas.height / 2;
+
+      for (let i = count; i >= 0; i--) {
+        const segX = cx - i * 14 + Math.sin(pTime - i * 0.35) * 12;
+        const segY = cy + Math.cos(pTime - i * 0.35) * 12;
+
+        let col = skin.head;
+        if (skin.type === 'rainbow') col = `hsl(${(pTime * 110 + i * 15) % 360}, 100%, 55%)`;
+        else if (i > 0) col = skin.body;
+
+        pCtx.save();
+        pCtx.shadowBlur = 12;
+        pCtx.shadowColor = skin.type === 'rainbow' ? col : skin.glow;
+        pCtx.fillStyle = col;
+        pCtx.beginPath();
+        pCtx.arc(segX, segY, (i === 0) ? radius * 1.15 : radius, 0, Math.PI * 2);
+        pCtx.fill();
+
+        pCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+        pCtx.lineWidth = 1.5;
+        pCtx.stroke();
+        pCtx.restore();
+
+        if (i === 0) {
+          if (skin.type === 'dragon') {
+            pCtx.fillStyle = '#ffe600';
+            pCtx.beginPath();
+            pCtx.moveTo(segX - 2, segY - 14); pCtx.lineTo(segX - 10, segY - 24); pCtx.lineTo(segX + 4, segY - 12);
+            pCtx.moveTo(segX - 2, segY + 14); pCtx.lineTo(segX - 10, segY + 24); pCtx.lineTo(segX + 4, segY + 12);
+            pCtx.fill();
+          } else if (skin.type === 'gold_king') {
+            pCtx.fillStyle = '#ffe600';
+            pCtx.beginPath();
+            pCtx.moveTo(segX - 6, segY - 20); pCtx.lineTo(segX, segY - 26); pCtx.lineTo(segX + 6, segY - 20);
+            pCtx.lineTo(segX + 8, segY - 12); pCtx.lineTo(segX - 8, segY - 12);
+            pCtx.fill();
+          }
+
+          pCtx.fillStyle = '#fff';
+          pCtx.beginPath();
+          pCtx.arc(segX + 6, segY - 6, 5, 0, Math.PI * 2);
+          pCtx.arc(segX + 6, segY + 6, 5, 0, Math.PI * 2);
+          pCtx.fill();
+
+          pCtx.fillStyle = '#000';
+          pCtx.beginPath();
+          pCtx.arc(segX + 8, segY - 6, 2.5, 0, Math.PI * 2);
+          pCtx.arc(segX + 8, segY + 6, 2.5, 0, Math.PI * 2);
+          pCtx.fill();
+        }
+      }
+      requestAnimationFrame(renderPreview);
+    }
+    renderPreview();
+
+    function startGame() {
+      playButtonSound(950, 0.15);
+      const name = nameInput.value.trim() || 'X-Hunter';
+      localStorage.setItem('xhu_player_name', name);
+      sessionStorage.setItem('xhu_player_name', name);
+      sessionStorage.setItem('xhu_player_skin', JSON.stringify(SKINS[selectedSkinIdx]));
+      setTimeout(() => {
+        window.location.href = 'game.html';
+      }, 150);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startGame);
+
+    // ==========================================
+    // ۵. سیستم ناوبری تفکیک‌شده کنترل تلویزیون (بدون تغییر ناخواسته اسکین)
+    // ==========================================
+    let focusRow = 2; // 0: فیلد نام | 1: گرید اسکین‌ها | 2: دکمه شروع
+
+    function updateTVFocusDisplay() {
+      nameInput.classList.remove('tv-focused');
+      document.getElementById('startBtn').classList.remove('tv-focused');
+      skinElements.forEach(c => c.classList.remove('tv-cursor'));
+
+      if (focusRow === 0) {
+        nameInput.classList.add('tv-focused');
+        nameInput.focus();
+      } else if (focusRow === 1) {
+        nameInput.blur();
+        // فقط نشانگر فوکوس قرار می‌گیرد و اسکین تغییر نمی‌کند
+        skinElements[tvCursorIdx].classList.add('tv-cursor');
+      } else if (focusRow === 2) {
+        nameInput.blur();
+        document.getElementById('startBtn').classList.add('tv-focused');
+      }
+      playButtonSound(480, 0.04);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (!audioInitialized) {
+        activateAudioAndEnter();
+        return;
+      }
+
+      const code = e.keyCode;
+      const key = e.key;
+
+      if (key === 'ArrowDown' || code === 40) {
+        if (focusRow === 0) {
+          focusRow = 1;
+        } else if (focusRow === 1) {
+          // اگر در ردیف اول گرید است (۰ تا ۶)، به ردیف دوم گرید برود
+          if (tvCursorIdx < 7) {
+            tvCursorIdx += 7;
+          } else {
+            // اگر در ردیف دوم است، به دکمه شروع برود (اسکین انتخاب‌شده عوض نمی‌شود)
+            focusRow = 2;
+          }
+        }
+        updateTVFocusDisplay();
+      } else if (key === 'ArrowUp' || code === 38) {
+        if (focusRow === 2) {
+          focusRow = 1;
+        } else if (focusRow === 1) {
+          if (tvCursorIdx >= 7) {
+            tvCursorIdx -= 7;
+          } else {
+            focusRow = 0;
+          }
+        }
+        updateTVFocusDisplay();
+      } else if (key === 'ArrowLeft' || code === 37) {
+        if (focusRow === 1 && tvCursorIdx < SKINS.length - 1) {
+          tvCursorIdx++;
+          updateTVFocusDisplay();
+        }
+      } else if (key === 'ArrowRight' || code === 39) {
+        if (focusRow === 1 && tvCursorIdx > 0) {
+          tvCursorIdx--;
+          updateTVFocusDisplay();
+        }
+      } else if (key === 'Enter' || code === 13) {
+        if (focusRow === 2) {
+          startGame();
+        } else if (focusRow === 1) {
+          // تنها با فشردن دکمه OK اسکین تغییر می‌کند
+          const targetSkin = SKINS[tvCursorIdx];
+          if (highScore >= targetSkin.req) {
+            applySkinSelection(tvCursorIdx);
+          } else {
+            playButtonSound(300, 0.15);
+            alert(`این اسکین قفل است! برای باز شدن نیاز به کسب رکورد ${targetSkin.req} امتیاز دارید.`);
+          }
+        } else if (focusRow === 0) {
+          focusRow = 1;
+          updateTVFocusDisplay();
+        }
+      }
+    });
+
+    updateTVFocusDisplay();
+  </script>
+</body>
+</html>
