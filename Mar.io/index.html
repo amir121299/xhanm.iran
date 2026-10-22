@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mar.io - انتخاب پلتفرم</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Vazirmatn:wght@700;900&display=swap');
+
+    :root {
+      --neon-cyan: #00f3ff;
+      --neon-pink: #ff0055;
+      --neon-green: #00ff66;
+      --neon-gold: #ffe600;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: #030309;
+      background-image: 
+        radial-gradient(circle at center, rgba(35, 15, 65, 0.6) 0%, rgba(3, 3, 10, 1) 100%),
+        linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 45px 45px, 45px 45px;
+      font-family: 'Vazirmatn', 'Orbitron', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .title-box {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .title-box h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: 5px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+    }
+
+    .title-box p {
+      color: var(--neon-cyan);
+      font-size: 1.15rem;
+      margin-top: 5px;
+      letter-spacing: 2px;
+    }
+
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      width: 100%;
+      max-width: 980px;
+    }
+
+    .device-card {
+      background: rgba(14, 14, 32, 0.88);
+      border: 2px solid #252545;
+      border-radius: 24px;
+      padding: 35px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .device-card:hover, .device-card.tv-focused {
+      transform: translateY(-8px) scale(1.03);
+    }
+
+    .device-card.android:hover, .device-card.android.tv-focused {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 35px rgba(0, 255, 102, 0.4);
+    }
+
+    .device-card.windows:hover, .device-card.windows.tv-focused {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 35px rgba(0, 243, 255, 0.4);
+    }
+
+    .device-card.tv:hover, .device-card.tv.tv-focused {
+      border-color: var(--neon-gold);
+      box-shadow: 0 0 35px rgba(255, 230, 0, 0.4);
+    }
+
+    .icon-wrapper {
+      width: 85px;
+      height: 85px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .icon-wrapper svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 10px currentColor);
+    }
+
+    .device-card h2 {
+      font-size: 1.45rem;
+      margin-bottom: 10px;
+    }
+
+    .device-card p {
+      font-size: 0.88rem;
+      color: #99aacc;
+      line-height: 1.5;
+    }
+
+    .footer-hint {
+      margin-top: 40px;
+      font-size: 0.95rem;
+      color: #7788aa;
+    }
+
+    @media (max-width: 820px) {
+      .devices-grid {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title-box">
+    <h1>MAR.IO</h1>
+    <p>انتخاب دستگاه و روش بازی</p>
+  </div>
+
+  <div class="devices-grid">
+    <div class="device-card android" data-mode="android" tabindex="0">
+      <div class="icon-wrapper" style="color: var(--neon-green);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+          <line x1="12" y1="18" x2="12" y2="18.01" stroke-width="3"></line>
+        </svg>
+      </div>
+      <h2>اندروید / لمسی</h2>
+      <p>هدایت با جوی‌استیک لمسی شناور + دکمه اختصاصی نیترو روی صفحه</p>
+    </div>
+
+    <div class="device-card windows tv-focused" data-mode="windows" tabindex="0">
+      <div class="icon-wrapper" style="color: var(--neon-cyan);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+      </div>
+      <h2>کامپیوتر / ویندوز</h2>
+      <p>تعقیب فوق‌العاده سریع با ماوس + بوست شتاب با کلیک یا Space</p>
+    </div>
+
+    <div class="device-card tv" data-mode="tv" tabindex="0">
+      <div class="icon-wrapper" style="color: var(--neon-gold);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="4" width="20" height="13" rx="2"></rect>
+          <polyline points="7 20 12 17 17 20"></polyline>
+        </svg>
+      </div>
+      <h2>تلویزیون هوشمند</h2>
+      <p>کنترل با دکمه‌های جهت‌نمای ریموت + کلید OK برای بوست</p>
+    </div>
+  </div>
+
+  <div class="footer-hint">دستگاه مورد نظر را لمس کنید، کلیک کنید یا با کنترل تلویزیون دکمه OK را بزنید.</div>
+
+  <script>
+    const cards = Array.from(document.querySelectorAll('.device-card'));
+    let selectedIdx = 1;
+
+    function chooseDevice(mode) {
+      sessionStorage.setItem('xhu_device_mode', mode);
+      window.location.href = 'menu.html';
+    }
+
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', () => chooseDevice(card.dataset.mode));
+    });
+
+    function updateCardFocus() {
+      cards.forEach((c, i) => c.classList.toggle('tv-focused', i === selectedIdx));
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const key = e.key;
+      const code = e.keyCode;
+      if (key === 'ArrowRight' || code === 39) {
+        if (selectedIdx > 0) { selectedIdx--; updateCardFocus(); }
+      } else if (key === 'ArrowLeft' || code === 37) {
+        if (selectedIdx < cards.length - 1) { selectedIdx++; updateCardFocus(); }
+      } else if (key === 'Enter' || code === 13) {
+        chooseDevice(cards[selectedIdx].dataset.mode);
+      }
+    });
+
+    updateCardFocus();
+  </script>
+</body>
+</html>
