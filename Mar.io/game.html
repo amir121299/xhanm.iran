@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mar.io - عرصه نبرد نئونی</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Vazirmatn:wght@700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    body {
+      background: #020206;
+      font-family: 'Orbitron', 'Vazirmatn', sans-serif;
+      width: 100vw;
+      height: 100vh;
+      color: #fff;
+    }
+
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* مشخصات بازی (HUD) */
+    .hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-card {
+      background: rgba(10, 10, 26, 0.85);
+      border: 1.5px solid #00f3ff;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .hud-card span {
+      color: #00f3ff;
+      font-weight: 900;
+    }
+
+    /* دکمه استاپ / توقف بازی */
+    .pause-btn-hud {
+      position: absolute;
+      top: 20px;
+      left: 240px;
+      background: rgba(10, 10, 26, 0.85);
+      border: 1.5px solid var(--neon-gold, #ffe600);
+      color: #ffe600;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      z-index: 15;
+      box-shadow: 0 0 15px rgba(255, 230, 0, 0.25);
+      transition: all 0.2s;
+    }
+
+    .pause-btn-hud:hover {
+      background: #ffe600;
+      color: #000;
+      box-shadow: 0 0 25px #ffe600;
+      transform: scale(1.05);
+    }
+
+    .ghost-alert {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 243, 255, 0.25);
+      border: 2px solid #00f3ff;
+      box-shadow: 0 0 25px #00f3ff;
+      padding: 8px 24px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      display: none;
+      z-index: 15;
+    }
+
+    .leaderboard {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 240px;
+      background: rgba(10, 10, 26, 0.85);
+      border: 1.5px solid #ff0055;
+      border-radius: 14px;
+      padding: 12px;
+      pointer-events: none;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+
+    .leaderboard h3 {
+      font-size: 0.95rem;
+      color: #ff0055;
+      text-align: center;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+
+    .lb-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .lb-row.me { color: #00ff66; font-weight: 900; }
+    .lb-row.king { color: #ffe600; font-weight: 900; }
+
+    #joystickZone {
+      position: absolute;
+      bottom: 35px;
+      left: 35px;
+      width: 140px;
+      height: 140px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px dashed rgba(0, 243, 255, 0.5);
+      border-radius: 50%;
+      display: none;
+      z-index: 50;
+    }
+
+    #joystickHandle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      background: rgba(0, 243, 255, 0.7);
+      box-shadow: 0 0 20px #00f3ff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    #mobileBoostBtn {
+      position: absolute;
+      bottom: 45px;
+      right: 45px;
+      width: 90px;
+      height: 90px;
+      background: rgba(255, 0, 85, 0.25);
+      border: 3px solid #ff0055;
+      box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.1rem;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+      cursor: pointer;
+    }
+
+    /* پرده شروع بازی و دانلود موزیک به رم */
+    .start-gate-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(2, 2, 8, 0.96);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(14px);
+    }
+
+    .start-gate-box {
+      background: rgba(14, 14, 32, 0.95);
+      border: 2px solid #00f3ff;
+      box-shadow: 0 0 50px rgba(0, 243, 255, 0.4);
+      padding: 40px 50px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+    }
+
+    .start-gate-box h2 {
+      font-size: 2.2rem;
+      color: #00f3ff;
+      margin-bottom: 12px;
+      text-shadow: 0 0 20px #00f3ff;
+    }
+
+    .start-gate-box p {
+      font-size: 1rem;
+      color: #a0b2d6;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .gate-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-family: inherit;
+      font-weight: 900;
+      background: #00ff66;
+      color: #000;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 0 30px #00ff66;
+      transition: all 0.2s;
+    }
+
+    .gate-btn:hover, .gate-btn.tv-focused {
+      transform: scale(1.03);
+      box-shadow: 0 0 45px #00ff66;
+    }
+
+    /* نوار لودینگ و ذخیره در رم */
+    .loading-container {
+      width: 100%;
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #00f3ff;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00f3ff, #ff0055);
+      box-shadow: 0 0 15px #00f3ff;
+      transition: width 0.15s ease;
+    }
+
+    .loading-text {
+      font-size: 0.95rem;
+      color: #ffe600;
+      font-weight: bold;
+    }
+
+    /* منوی توقف (Pause Modal) همراه با تنظیم صدا */
+    .pause-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 3, 10, 0.92);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 500;
+      backdrop-filter: blur(12px);
+    }
+
+    .pause-card {
+      background: #0d0d24;
+      border: 2px solid #ffe600;
+      box-shadow: 0 0 45px rgba(255, 230, 0, 0.4);
+      padding: 35px 50px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+    }
+
+    .pause-card h2 {
+      font-size: 2.4rem;
+      color: #ffe600;
+      margin-bottom: 25px;
+      text-shadow: 0 0 20px #ffe600;
+    }
+
+    .volume-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+      text-align: right;
+    }
+
+    .vol-control {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .vol-control input[type="range"] {
+      width: 55%;
+      accent-color: #00f3ff;
+      cursor: pointer;
+    }
+
+    .pause-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pause-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.15rem;
+      font-family: inherit;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 900;
+      transition: all 0.2s;
+    }
+
+    .btn-resume { border: 2px solid #00ff66; background: rgba(0, 255, 102, 0.2); color: #fff; }
+    .btn-resume:hover, .btn-resume.focused { background: #00ff66; color: #000; box-shadow: 0 0 25px #00ff66; }
+
+    .btn-quit { border: 2px solid #ff0055; background: transparent; color: #fff; }
+    .btn-quit:hover, .btn-quit.focused { background: #ff0055; color: #fff; box-shadow: 0 0 25px #ff0055; }
+
+    /* مدال پایان بازی */
+    .game-over-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 3, 10, 0.94);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .go-card {
+      background: #0d0d24;
+      border: 2px solid #ff0055;
+      box-shadow: 0 0 45px rgba(255, 0, 85, 0.6);
+      padding: 35px 50px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+    }
+
+    .go-card h2 {
+      font-size: 2.8rem;
+      color: #ff0055;
+      margin-bottom: 10px;
+    }
+
+    .go-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 1.2rem;
+      font-family: inherit;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 900;
+      transition: all 0.2s;
+    }
+
+    .btn-retry { border: 2px solid #00ff66; background: rgba(0, 255, 102, 0.2); color: #fff; }
+    .btn-retry:hover, .btn-retry.focused { background: #00ff66; color: #000; box-shadow: 0 0 30px #00ff66; }
+
+    .btn-menu { border: 2px solid #00f3ff; background: transparent; color: #fff; }
+    .btn-menu:hover, .btn-menu.focused { background: #00f3ff; color: #000; box-shadow: 0 0 30px #00f3ff; }
+  </style>
+</head>
+<body>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- هاب بالای صفحه -->
+  <div class="hud">
+    <div class="hud-card">امتیاز مار: <span id="scoreVal">10</span></div>
+    <div class="hud-card">بالاترین رکورد: <span id="recordVal">0</span></div>
+    <div class="hud-card">شکارها: <span id="killsVal">0</span></div>
+  </div>
+
+  <button class="pause-btn-hud" id="pauseBtnHud">⏸ توقف (Pause)</button>
+
+  <div class="ghost-alert" id="ghostAlert">سپر ضدضربه (حالت روح): <span id="ghostTimer">5.0</span> ثانیه</div>
+
+  <div class="leaderboard">
+    <h3>TOP PLAYERS</h3>
+    <div id="lbList"></div>
+  </div>
+
+  <div id="joystickZone"><div id="joystickHandle"></div></div>
+  <div id="mobileBoostBtn">بوست</div>
+
+  <!-- پرده شروع بازی با کش موزیک در رم -->
+  <div class="start-gate-modal" id="startGateModal">
+    <div class="start-gate-box">
+      <h2>آماده‌سازی نبرد</h2>
+      <p>جهت تضمین اجرای بدون وقفه در اینترنت‌های ضعیف، موزیک بازی روی حافظه رم ذخیره شده و پس از تکمیل، مسابقه فوراً استارت می‌خورد.</p>
+      <button class="gate-btn tv-focused" id="initStartBtn">شروع مسابقه نئونی (START)</button>
+
+      <div class="loading-container" id="loadingContainer">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="loading-text" id="loadingText">در حال ذخیره آهنگ در حافظه رم (۰٪)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- منوی توقف (Pause) با اسلایدرهای صدا -->
+  <div class="pause-modal" id="pauseModal">
+    <div class="pause-card">
+      <h2>بازی متوقف شد</h2>
+      <div class="volume-group">
+        <div class="vol-control">
+          <span>صدای موسیقی: <b id="bgmVolLabel" style="color:#00f3ff">50%</b></span>
+          <input type="range" id="bgmSlider" min="0" max="100" value="50">
+        </div>
+        <div class="vol-control">
+          <span>صدای افکت‌ها: <b id="sfxVolLabel" style="color:#00ff66">100%</b></span>
+          <input type="range" id="sfxSlider" min="0" max="100" value="100">
+        </div>
+      </div>
+      <div class="pause-actions">
+        <button class="pause-btn btn-resume focused" id="resumeBtn">ادامه مسابقه (OK)</button>
+        <button class="pause-btn btn-quit" id="quitBtn">خروج به منوی اصلی</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مدال گیم اوور -->
+  <div class="game-over-modal" id="gameOverModal">
+    <div class="go-card">
+      <h2>شما باختید!</h2>
+      <p style="color:#bbb; margin-bottom: 15px;">امتیاز نهایی: <b id="finalScore" style="color:#00f3ff">0</b> | تعداد شکار: <b id="finalKills" style="color:#00ff66">0</b></p>
+      <div id="newRecordNotice" style="color: #ffe600; font-weight: bold; margin-bottom: 15px; display: none;">🎉 تبریک! رکورد جدید ثبت شد!</div>
+      <button class="go-btn btn-retry focused" id="retryBtn">تلاش مجدد (شروع مسابقه تمیز)</button>
+      <button class="go-btn btn-menu" id="menuBtn">بازگشت به منوی اسکین‌ها</button>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // ۱. متغیرهای کنترل وضعیت بازی
+    // ==========================================
+    let gameStarted = false; // تا وقتی روی شروع نزده به هیچ وجه بازی اجرا نمی‌شود
+    let isPaused = false;
+    let isGameOver = false;
+
+    let sfxVolume = 1.0; // افکت‌ها ۱۰۰٪
+    let bgmVolume = 0.5; // موزیک ۵۰٪
+
+    // ==========================================
+    // ۲. سیستم صوتی با کنترل ولوم مستقل
+    // ==========================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterSfxGain = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+          this.masterSfxGain = this.ctx.createGain();
+          this.masterSfxGain.gain.setValueAtTime(sfxVolume, this.ctx.currentTime);
+          this.masterSfxGain.connect(this.ctx.destination);
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setSfxGain(val) {
+        sfxVolume = val;
+        if (this.masterSfxGain && this.ctx) {
+          this.masterSfxGain.gain.setValueAtTime(sfxVolume, this.ctx.currentTime);
+        }
+      }
+
+      playEat(isDeathOrb = false) {
+        if (!this.ctx || this.ctx.state !== 'running') return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = isDeathOrb ? 'sawtooth' : 'sine';
+        const startFreq = isDeathOrb ? 300 : 520;
+        const endFreq = isDeathOrb ? 750 : 920;
+        osc.frequency.setValueAtTime(startFreq + Math.random() * 80, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(isDeathOrb ? 0.35 : 0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.masterSfxGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+
+      playExplosion() {
+        if (!this.ctx || this.ctx.state !== 'running') return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(170, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(25, this.ctx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(this.masterSfxGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.35);
+      }
+
+      playBoost() {
+        if (!this.ctx || this.ctx.state !== 'running') return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.14, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(this.masterSfxGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+    }
+    const sound = new SoundEngine();
+
+    const gameMusic = new Audio();
+    gameMusic.loop = true;
+    gameMusic.volume = bgmVolume;
+
+    // ==========================================
+    // ۳. پیش‌بارگذاری هوشمند موزیک به رم با درصد پیشرفت
+    // ==========================================
+    async function loadAudioToRAM(url, onProgress) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('File fetch error');
+
+        const contentLength = response.headers.get('content-length');
+        if (!contentLength) {
+          // در صورت نبود هدر سایز (مثلاً در هاست‌های خاص)، شبیه‌سازی لودینگ رم
+          for (let p = 10; p <= 100; p += 15) {
+            onProgress(p);
+            await new Promise(r => setTimeout(r, 60));
+          }
+          const blob = await response.blob();
+          return URL.createObjectURL(blob);
+        }
+
+        const total = parseInt(contentLength, 10);
+        let loaded = 0;
+        const reader = response.body.getReader();
+        const chunks = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          loaded += value.length;
+          const percent = Math.floor((loaded / total) * 100);
+          onProgress(percent);
+        }
+
+        const blob = new Blob(chunks, { type: 'audio/mp3' });
+        return URL.createObjectURL(blob);
+      } catch (err) {
+        console.warn('استفاده از حالت مستقیم صوتی (Direct Mode):', err);
+        return url;
+      }
+    }
+
+    const initStartBtn = document.getElementById('initStartBtn');
+    const loadingContainer = document.getElementById('loadingContainer');
+    const progressFill = document.getElementById('progressFill');
+    const loadingText = document.getElementById('loadingText');
+
+    initStartBtn.addEventListener('click', async () => {
+      sound.init();
+      initStartBtn.style.display = 'none';
+      loadingContainer.style.display = 'flex';
+
+      const audioBlobUrl = await loadAudioToRAM('game-music.mp3', (percent) => {
+        progressFill.style.width = percent + '%';
+        loadingText.innerText = `در حال ذخیره آهنگ در حافظه رم (${percent}٪)`;
+      });
+
+      gameMusic.src = audioBlobUrl;
+      gameMusic.play().catch(e => console.log('موزیک پس از لودینگ آماده پخش است'));
+
+      // بستن پرده و آغاز مسابقه
+      const gate = document.getElementById('startGateModal');
+      gate.style.opacity = '0';
+      setTimeout(() => {
+        gate.style.display = 'none';
+        gameStarted = true; // بازی رسماً آغاز شد
+      }, 300);
+    });
+
+    // ==========================================
+    // ۴. بارگذاری اطلاعات کاربر و پلتفرم
+    // ==========================================
+    const deviceMode = sessionStorage.getItem('xhu_device_mode') || 'windows';
+    const playerName = sessionStorage.getItem('xhu_player_name') || 'X-Hunter';
+    let playerSkin = { id: 'cyber', type: 'normal', head: '#00f3ff', body: '#006699', glow: '#00f3ff' };
+    try {
+      const s = JSON.parse(sessionStorage.getItem('xhu_player_skin'));
+      if (s) playerSkin = s;
+    } catch(e) {}
+
+    let currentHighScore = parseInt(localStorage.getItem('xhu_high_score') || '0', 10);
+    document.getElementById('recordVal').innerText = currentHighScore;
+
+    if (deviceMode === 'android') {
+      document.getElementById('joystickZone').style.display = 'block';
+      document.getElementById('mobileBoostBtn').style.display = 'flex';
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const WORLD_SIZE = 3800;
+    let camera = { x: WORLD_SIZE / 2, y: WORLD_SIZE / 2 };
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ==========================================
+    // ۵. کلاس اورب‌ها (۰.۵ برای عادی/رد بوست و ۱.۰ برای لاشه)
+    // ==========================================
+    class EnergyOrb {
+      constructor(x, y, type = 'ambient', color = null) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+
+        if (type === 'death') {
+          this.val = 1.0;
+          this.radius = 8 + Math.random() * 3;
+        } else {
+          this.val = 0.5; // دقیقاً نیم امتیاز
+          this.radius = (type === 'trail') ? 5 : 4;
+        }
+
+        const colors = ['#00f3ff', '#ff0055', '#00ff66', '#ffe600', '#a800ff'];
+        this.color = color || colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      draw(c) {
+        c.save();
+        if (this.type === 'death') {
+          c.shadowBlur = 14;
+          c.shadowColor = this.color;
+        } else if (this.type === 'trail') {
+          c.shadowBlur = 8;
+          c.shadowColor = this.color;
+        }
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+
+    let orbs = [];
+    function seedOrbs() {
+      orbs = [];
+      for (let i = 0; i < 40; i++) {
+        const cx = 200 + Math.random() * (WORLD_SIZE - 400);
+        const cy = 200 + Math.random() * (WORLD_SIZE - 400);
+        for (let j = 0; j < 12; j++) {
+          orbs.push(new EnergyOrb(cx + (Math.random() - 0.5) * 160, cy + (Math.random() - 0.5) * 160, 'ambient'));
+        }
+      }
+    }
+    seedOrbs();
+
+    // ==========================================
+    // ۶. کلاس مار
+    // ==========================================
+    class SnakeEntity {
+      constructor(x, y, name, skin, score = 10, isBot = false) {
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.skin = skin;
+        this.score = score;
+        this.isBot = isBot;
+
+        this.angle = Math.random() * Math.PI * 2;
+        this.targetAngle = this.angle;
+        this.turnSpeed = 0.14;
+        this.isBoosting = false;
+        this.boostDropTimer = 0;
+        this.dead = false;
+        this.kills = 0;
+
+        this.isGhost = !isBot;
+        this.ghostTimeRemaining = 5.0;
+
+        this.segments = [];
+        const initialSegs = Math.max(10, Math.floor(score * 0.85));
+        for (let i = 0; i < initialSegs; i++) {
+          this.segments.push({ x: this.x - i * 11, y: this.y });
+        }
+
+        this.aiDecisionTimer = Math.floor(Math.random() * 10);
+      }
+
+      getRadius() {
+        return Math.min(14 + Math.sqrt(this.score) * 0.65, 28);
+      }
+
+      update(dt) {
+        if (this.dead) return;
+
+        if (this.isGhost) {
+          this.ghostTimeRemaining -= dt;
+          if (this.ghostTimeRemaining <= 0) this.isGhost = false;
+        }
+
+        let speed = 3.8;
+        if (this.isBoosting && this.score > 5) {
+          speed = 6.8;
+          this.boostDropTimer += dt;
+          if (this === player) sound.playBoost();
+
+          // تخلیه ۱ به ۱ امتیاز از انتهای دُم
+          if (this.boostDropTimer >= 0.18) {
+            this.boostDropTimer = 0;
+            this.score = Math.max(5, this.score - 1);
+
+            const tailSeg = this.segments[this.segments.length - 1] || { x: this.x, y: this.y };
+            let dropColor = this.skin.glow || this.skin.head;
+            if (this.skin.type === 'rainbow') {
+              dropColor = `hsl(${(Date.now() * 0.1) % 360}, 100%, 55%)`;
+            }
+
+            orbs.push(new EnergyOrb(
+              tailSeg.x + (Math.random() - 0.5) * 6,
+              tailSeg.y + (Math.random() - 0.5) * 6,
+              'trail',
+              dropColor
+            ));
+          }
+        } else {
+          this.isBoosting = false;
+          this.boostDropTimer = 0;
+        }
+
+        let diff = this.targetAngle - this.angle;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        this.angle += diff * this.turnSpeed;
+
+        this.x += Math.cos(this.angle) * speed;
+        this.y += Math.sin(this.angle) * speed;
+
+        if (this.x < 40 || this.x > WORLD_SIZE - 40 || this.y < 40 || this.y > WORLD_SIZE - 40) {
+          if (!this.isGhost) { this.die(); return; }
+          else {
+            this.x = Math.max(50, Math.min(WORLD_SIZE - 50, this.x));
+            this.y = Math.max(50, Math.min(WORLD_SIZE - 50, this.y));
+          }
+        }
+
+        const r = this.getRadius();
+        const segDist = r * 0.45;
+        this.segments[0] = { x: this.x, y: this.y };
+
+        const targetCount = Math.floor(10 + this.score * 0.85);
+        while (this.segments.length < targetCount) {
+          const tail = this.segments[this.segments.length - 1];
+          this.segments.push({ x: tail.x, y: tail.y });
+        }
+        while (this.segments.length > targetCount && this.segments.length > 8) {
+          this.segments.pop();
+        }
+
+        for (let i = 1; i < this.segments.length; i++) {
+          const prev = this.segments[i - 1];
+          const curr = this.segments[i];
+          const dx = curr.x - prev.x;
+          const dy = curr.y - prev.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > segDist) {
+            const ang = Math.atan2(dy, dx);
+            curr.x = prev.x + Math.cos(ang) * segDist;
+            curr.y = prev.y + Math.sin(ang) * segDist;
+          }
+        }
+
+        if (this.isBot) this.battleAI();
+      }
+
+      battleAI() {
+        this.aiDecisionTimer++;
+        if (this.aiDecisionTimer % 5 !== 0) return;
+
+        const r = this.getRadius();
+        const lookDist = 110 + (this.isBoosting ? 40 : 0);
+
+        const sensorRays = [-0.9, -0.45, 0, 0.45, 0.9];
+        let dangerDetected = false;
+        let bestEscapeAngle = this.angle;
+        let maxClearance = -1;
+
+        for (let relAng of sensorRays) {
+          const checkAng = this.angle + relAng;
+          const cx = this.x + Math.cos(checkAng) * lookDist;
+          const cy = this.y + Math.sin(checkAng) * lookDist;
+
+          let rayClear = true;
+          for (let other of snakes) {
+            if (other === this || other.dead || other.isGhost) continue;
+            for (let i = 1; i < other.segments.length; i += 2) {
+              const seg = other.segments[i];
+              if (Math.hypot(cx - seg.x, cy - seg.y) < r + other.getRadius() + 16) {
+                rayClear = false;
+                break;
+              }
+            }
+            if (!rayClear) break;
+          }
+
+          if (rayClear && relAng !== 0 && maxClearance === -1) {
+            maxClearance = 1;
+            bestEscapeAngle = checkAng;
+          }
+          if (!rayClear && Math.abs(relAng) < 0.5) {
+            dangerDetected = true;
+          }
+        }
+
+        if (dangerDetected) {
+          this.targetAngle = bestEscapeAngle;
+          this.isBoosting = false;
+          return;
+        }
+
+        const margin = 240;
+        if (this.x < margin) { this.targetAngle = 0; return; }
+        if (this.x > WORLD_SIZE - margin) { this.targetAngle = Math.PI; return; }
+        if (this.y < margin) { this.targetAngle = Math.PI / 2; return; }
+        if (this.y > WORLD_SIZE - margin) { this.targetAngle = -Math.PI / 2; return; }
+
+        let potentialVictim = null;
+        let minVictimDist = 360;
+
+        for (let other of snakes) {
+          if (other === this || other.dead || other.isGhost) continue;
+          const d = Math.hypot(this.x - other.x, this.y - other.y);
+          if (d < minVictimDist) {
+            minVictimDist = d;
+            potentialVictim = other;
+          }
+        }
+
+        if (potentialVictim && this.score > 8) {
+          const predSpeed = potentialVictim.isBoosting ? 6.5 : 3.8;
+          const predictX = potentialVictim.x + Math.cos(potentialVictim.angle) * predSpeed * 18;
+          const predictY = potentialVictim.y + Math.sin(potentialVictim.angle) * predSpeed * 18;
+          this.targetAngle = Math.atan2(predictY - this.y, predictX - this.x);
+          this.isBoosting = (minVictimDist < 200);
+          return;
+        }
+
+        let bestOrb = null;
+        let minOrbDist = 320;
+        for (let orb of orbs) {
+          if (orb.type === 'death' || orb.type === 'trail') {
+            const d = Math.hypot(this.x - orb.x, this.y - orb.y);
+            if (d < minOrbDist) {
+              minOrbDist = d;
+              bestOrb = orb;
+            }
+          }
+        }
+
+        if (bestOrb) {
+          this.targetAngle = Math.atan2(bestOrb.y - this.y, bestOrb.x - this.x);
+          this.isBoosting = (bestOrb.type === 'death' && minOrbDist < 180 && this.score > 15);
+          return;
+        }
+
+        this.isBoosting = false;
+        if (Math.random() < 0.08) {
+          this.targetAngle += (Math.random() - 0.5) * 0.6;
+        }
+      }
+
+      die() {
+        if (this.dead || this.isGhost) return;
+        this.dead = true;
+        sound.playExplosion();
+
+        for (let i = 0; i < this.segments.length; i += 2) {
+          orbs.push(new EnergyOrb(
+            this.segments[i].x + (Math.random() - 0.5) * 8,
+            this.segments[i].y + (Math.random() - 0.5) * 8,
+            'death',
+            this.skin.glow || this.skin.head
+          ));
+        }
+
+        if (this === player) triggerGameOver();
+      }
+
+      draw(c, isKing) {
+        if (this.dead) return;
+        const r = this.getRadius();
+        const now = Date.now() * 0.12;
+
+        c.save();
+        if (this.isGhost) {
+          c.globalAlpha = 0.35 + 0.2 * Math.sin(Date.now() * 0.015);
+        }
+
+        for (let i = this.segments.length - 1; i >= 0; i--) {
+          const seg = this.segments[i];
+          let col = this.skin.head;
+
+          if (this.skin.type === 'rainbow') col = `hsl(${(now + i * 14) % 360}, 100%, 55%)`;
+          else if (i > 0) col = this.skin.body;
+
+          c.fillStyle = col;
+          c.beginPath();
+          c.arc(seg.x, seg.y, (i === 0) ? r * 1.15 : r, 0, Math.PI * 2);
+          c.fill();
+
+          c.lineWidth = 1.5;
+          c.strokeStyle = 'rgba(255,255,255,0.25)';
+          c.stroke();
+        }
+
+        // رسم تاج طلایی
+        if (isKing) {
+          c.save();
+          c.shadowBlur = 18;
+          c.shadowColor = '#ffe600';
+          c.fillStyle = '#ffe600';
+          const crownY = this.y - r - 16;
+          c.beginPath();
+          c.moveTo(this.x - 12, crownY);
+          c.lineTo(this.x - 14, crownY - 14);
+          c.lineTo(this.x - 5, crownY - 7);
+          c.lineTo(this.x, crownY - 18);
+          c.lineTo(this.x + 5, crownY - 7);
+          c.lineTo(this.x + 14, crownY - 14);
+          c.lineTo(this.x + 12, crownY);
+          c.closePath();
+          c.fill();
+          c.restore();
+        }
+
+        if (this.skin.type === 'dragon') {
+          c.fillStyle = '#ffe600';
+          const hAng1 = this.angle + 2.2;
+          const hAng2 = this.angle - 2.2;
+          c.beginPath();
+          c.arc(this.x + Math.cos(hAng1) * (r * 0.9), this.y + Math.sin(hAng1) * (r * 0.9), 4.5, 0, Math.PI * 2);
+          c.arc(this.x + Math.cos(hAng2) * (r * 0.9), this.y + Math.sin(hAng2) * (r * 0.9), 4.5, 0, Math.PI * 2);
+          c.fill();
+        }
+
+        const eDist = r * 0.55;
+        const e1 = this.angle + 0.65;
+        const e2 = this.angle - 0.65;
+        c.fillStyle = '#fff';
+        c.beginPath();
+        c.arc(this.x + Math.cos(e1) * eDist, this.y + Math.sin(e1) * eDist, r * 0.3, 0, Math.PI * 2);
+        c.arc(this.x + Math.cos(e2) * eDist, this.y + Math.sin(e2) * eDist, r * 0.3, 0, Math.PI * 2);
+        c.fill();
+
+        c.fillStyle = '#000';
+        c.beginPath();
+        c.arc(this.x + Math.cos(e1) * eDist + Math.cos(this.angle) * 2, this.y + Math.sin(e1) * eDist + Math.sin(this.angle) * 2, r * 0.15, 0, Math.PI * 2);
+        c.arc(this.x + Math.cos(e2) * eDist + Math.cos(this.angle) * 2, this.y + Math.sin(e2) * eDist + Math.sin(this.angle) * 2, r * 0.15, 0, Math.PI * 2);
+        c.fill();
+
+        c.fillStyle = isKing ? '#ffe600' : '#fff';
+        c.font = 'bold 11px Orbitron, Vazirmatn';
+        c.textAlign = 'center';
+        c.fillText((isKing ? '👑 ' : '') + this.name, this.x, this.y - r - (isKing ? 25 : 8));
+
+        c.restore();
+      }
+    }
+
+    // ==========================================
+    // ۷. ایجاد اولیه ۲۰ ربات و اسپان خارج از کادر دوربین
+    // ==========================================
+    let player = new SnakeEntity(WORLD_SIZE / 2, WORLD_SIZE / 2, playerName, playerSkin, 10, false);
+    let snakes = [player];
+
+    const BOT_NAMES = ['DragonLord', 'KingSlayer', 'TitanViper', 'NeonPulse', 'VenomStrike', 'ApexPredator', 'QuantumGhost', 'ShadowCode', 'Matrix_99', 'CyberFang'];
+    const BOT_SKINS = [
+      { id: 'b1', type: 'normal', head: '#00f3ff', body: '#005577', glow: '#00f3ff' },
+      { id: 'b2', type: 'normal', head: '#ff003b', body: '#770014', glow: '#ff003b' },
+      { id: 'b3', type: 'normal', head: '#ffe600', body: '#887700', glow: '#ffe600' },
+      { id: 'b4', type: 'normal', head: '#00ff66', body: '#006622', glow: '#00ff66' },
+      { id: 'b5', type: 'rainbow', glow: '#ff0055' }
+    ];
+
+    // تابع انتخاب مختصات دور از کادر بازیکن (حداقل ۱۲۰۰ پیکسل فاصله)
+    function getSafeSpawnCoords() {
+      let x, y, dist;
+      let tries = 0;
+      do {
+        x = 250 + Math.random() * (WORLD_SIZE - 500);
+        y = 250 + Math.random() * (WORLD_SIZE - 500);
+        dist = Math.hypot(x - player.x, y - player.y);
+        tries++;
+      } while (dist < 1200 && tries < 50);
+      return { x, y };
+    }
+
+    function makeBot(score = 20, useSafeCoords = false) {
+      const bName = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)] + '_' + Math.floor(10 + Math.random() * 89);
+      const bSkin = BOT_SKINS[Math.floor(Math.random() * BOT_SKINS.length)];
+      const pos = useSafeCoords ? getSafeSpawnCoords() : {
+        x: 250 + Math.random() * (WORLD_SIZE - 500),
+        y: 250 + Math.random() * (WORLD_SIZE - 500)
+      };
+      return new SnakeEntity(pos.x, pos.y, bName, bSkin, score, true);
+    }
+
+    // قبل از شروع بازیکن، دقیقاً ۲۰ ربات در نقشه کاشته می‌شوند
+    function initSpawns() {
+      snakes = [player];
+      snakes.push(makeBot(120, false));
+      for (let i = 0; i < 3; i++) snakes.push(makeBot(60, false));
+      for (let i = 0; i < 6; i++) snakes.push(makeBot(35, false));
+      for (let i = 0; i < 10; i++) snakes.push(makeBot(15, false));
+    }
+    initSpawns();
+
+    // ==========================================
+    // ۸. مدیریت توقف (Pause) و تنظیم ولوم
+    // ==========================================
+    const pauseModal = document.getElementById('pauseModal');
+    const pauseBtnHud = document.getElementById('pauseBtnHud');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const quitBtn = document.getElementById('quitBtn');
+    const bgmSlider = document.getElementById('bgmSlider');
+    const sfxSlider = document.getElementById('sfxSlider');
+    const bgmVolLabel = document.getElementById('bgmVolLabel');
+    const sfxVolLabel = document.getElementById('sfxVolLabel');
+
+    function togglePause() {
+      if (!gameStarted || isGameOver) return;
+      isPaused = !isPaused;
+      if (isPaused) {
+        pauseModal.style.display = 'flex';
+        gameMusic.pause();
+      } else {
+        pauseModal.style.display = 'none';
+        gameMusic.play().catch(() => {});
+      }
+    }
+
+    pauseBtnHud.addEventListener('click', togglePause);
+    resumeBtn.addEventListener('click', togglePause);
+    quitBtn.addEventListener('click', () => { window.location.href = 'menu.html'; });
+
+    bgmSlider.addEventListener('input', (e) => {
+      bgmVolume = e.target.value / 100;
+      gameMusic.volume = bgmVolume;
+      bgmVolLabel.innerText = e.target.value + '%';
+    });
+
+    sfxSlider.addEventListener('input', (e) => {
+      sound.setSfxGain(e.target.value / 100);
+      sfxVolLabel.innerText = e.target.value + '%';
+      sound.playEat(false); // تست سریع صدا
+    });
+
+    // ==========================================
+    // ۹. کنترل‌ها (ماوس، لمسی، ریموت تلویزیون)
+    // ==========================================
+    if (deviceMode === 'windows') {
+      window.addEventListener('mousemove', (e) => {
+        if (!gameStarted || isPaused || player.dead) return;
+        const hX = canvas.width / 2 + (player.x - camera.x);
+        const hY = canvas.height / 2 + (player.y - camera.y);
+        player.targetAngle = Math.atan2(e.clientY - hY, e.clientX - hX);
+      });
+      window.addEventListener('mousedown', () => { if (gameStarted && !isPaused && !player.dead) player.isBoosting = true; });
+      window.addEventListener('mouseup', () => { if (gameStarted && !isPaused && !player.dead) player.isBoosting = false; });
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && gameStarted && !isPaused && !player.dead) player.isBoosting = true;
+        if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
+      });
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'Space' && gameStarted && !isPaused && !player.dead) player.isBoosting = false;
+      });
+    }
+
+    if (deviceMode === 'android') {
+      const zone = document.getElementById('joystickZone');
+      const handle = document.getElementById('joystickHandle');
+      let touchId = null;
+
+      zone.addEventListener('touchstart', (e) => {
+        const t = e.changedTouches[0];
+        touchId = t.identifier;
+        moveJoystick(t);
+      });
+      zone.addEventListener('touchmove', (e) => {
+        for (let t of e.changedTouches) {
+          if (t.identifier === touchId) moveJoystick(t);
+        }
+      });
+      function resetJoy() {
+        touchId = null;
+        handle.style.left = '50%';
+        handle.style.top = '50%';
+      }
+      zone.addEventListener('touchend', resetJoy);
+      zone.addEventListener('touchcancel', resetJoy);
+
+      function moveJoystick(t) {
+        if (!gameStarted || isPaused) return;
+        const rect = zone.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = t.clientX - cx;
+        const dy = t.clientY - cy;
+        const angle = Math.atan2(dy, dx);
+        const dist = Math.min(45, Math.hypot(dx, dy));
+        handle.style.left = `${50 + Math.cos(angle) * dist}%`;
+        handle.style.top = `${50 + Math.sin(angle) * dist}%`;
+        player.targetAngle = angle;
+      }
+
+      const bBtn = document.getElementById('mobileBoostBtn');
+      bBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if (gameStarted && !isPaused) player.isBoosting = true; });
+      bBtn.addEventListener('touchend', (e) => { e.preventDefault(); if (gameStarted && !isPaused) player.isBoosting = false; });
+    }
+
+    const tvDirs = { u: false, d: false, l: false, r: false };
+    let pauseFocus = 0; // 0: resume, 1: quit
+
+    window.addEventListener('keydown', (e) => {
+      const code = e.keyCode;
+      const key = e.key;
+
+      // کلیدهای توقف
+      if (code === 19 || code === 179 || key === 'p' || key === 'P') {
+        togglePause();
+        return;
+      }
+
+      if (!gameStarted) {
+        if (key === 'Enter' || code === 13) initStartBtn.click();
+        return;
+      }
+
+      if (isPaused) {
+        if (key === 'ArrowUp' || key === 'ArrowDown' || code === 38 || code === 40) {
+          pauseFocus = 1 - pauseFocus;
+          resumeBtn.classList.toggle('focused', pauseFocus === 0);
+          quitBtn.classList.toggle('focused', pauseFocus === 1);
+        } else if (key === 'ArrowLeft') {
+          // کم کردن ولوم با کنترل
+          bgmSlider.value = Math.max(0, parseInt(bgmSlider.value) - 10);
+          bgmSlider.dispatchEvent(new Event('input'));
+        } else if (key === 'ArrowRight') {
+          bgmSlider.value = Math.min(100, parseInt(bgmSlider.value) + 10);
+          bgmSlider.dispatchEvent(new Event('input'));
+        } else if (key === 'Enter' || code === 13) {
+          if (pauseFocus === 0) togglePause();
+          else window.location.href = 'menu.html';
+        }
+        return;
+      }
+
+      if (!isGameOver) {
+        if (key === 'ArrowUp' || code === 38) tvDirs.u = true;
+        if (key === 'ArrowDown' || code === 40) tvDirs.d = true;
+        if (key === 'ArrowLeft' || code === 37) tvDirs.l = true;
+        if (key === 'ArrowRight' || code === 39) tvDirs.r = true;
+
+        let vx = 0, vy = 0;
+        if (tvDirs.u) vy -= 1;
+        if (tvDirs.d) vy += 1;
+        if (tvDirs.l) vx -= 1;
+        if (tvDirs.r) vx += 1;
+        if (vx !== 0 || vy !== 0) player.targetAngle = Math.atan2(vy, vx);
+
+        if (key === 'Enter' || code === 13) player.isBoosting = true;
+        if (code === 10009 || code === 461 || key === 'Escape' || code === 27) togglePause();
+      } else {
+        if (key === 'Enter' || code === 13) fullReset();
+        else if (code === 10009 || code === 461 || key === 'Escape' || code === 27) window.location.href = 'menu.html';
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const code = e.keyCode;
+      const key = e.key;
+      if (key === 'ArrowUp' || code === 38) tvDirs.u = false;
+      if (key === 'ArrowDown' || code === 40) tvDirs.d = false;
+      if (key === 'ArrowLeft' || code === 37) tvDirs.l = false;
+      if (key === 'ArrowRight' || code === 39) tvDirs.r = false;
+      if (key === 'Enter' || code === 13) player.isBoosting = false;
+    });
+
+    // ==========================================
+    // ۱۰. برخوردها و قانون اسپان ۱۰ ربات در بیرون کادر
+    // ==========================================
+    function checkCollisions() {
+      snakes.forEach(snake => {
+        if (snake.dead) return;
+        const r = snake.getRadius();
+
+        for (let i = orbs.length - 1; i >= 0; i--) {
+          const orb = orbs[i];
+          const dist = Math.hypot(snake.x - orb.x, snake.y - orb.y);
+          if (dist < r + orb.radius + 3) {
+            snake.score += orb.val;
+            if (snake === player) sound.playEat(orb.type === 'death');
+            orbs.splice(i, 1);
+          }
+        }
+
+        if (snake.isGhost) return;
+
+        snakes.forEach(other => {
+          if (snake === other || other.dead || other.isGhost) return;
+          const otherR = other.getRadius();
+          for (let i = 2; i < other.segments.length; i++) {
+            const seg = other.segments[i];
+            const d = Math.hypot(snake.x - seg.x, snake.y - seg.y);
+            if (d < r * 0.72 + otherR * 0.72) {
+              snake.die();
+              other.kills++;
+              other.score += 5;
+              break;
+            }
+          }
+        });
+      });
+
+      // قانون درخواستی: اگر تعداد ربات‌ها به ۱۰ یا کمتر رسید، ۱۰ ربات هم‌زمان در بیرون کادر دوربین اسپان می‌شوند
+      const aliveBots = snakes.filter(s => s.isBot && !s.dead).length;
+      if (aliveBots <= 10) {
+        const toSpawn = 20 - aliveBots; // رساندن مجدد به ۲۰
+        for (let i = 0; i < toSpawn; i++) {
+          snakes.push(makeBot(15 + Math.floor(Math.random() * 30), true)); // useSafeCoords = true
+        }
+      }
+    }
+
+    function triggerGameOver() {
+      isGameOver = true;
+      const finalScore = Math.floor(player.score);
+      document.getElementById('finalScore').innerText = finalScore;
+      document.getElementById('finalKills').innerText = player.kills;
+
+      if (finalScore > currentHighScore) {
+        currentHighScore = finalScore;
+        localStorage.setItem('xhu_high_score', currentHighScore.toString());
+        document.getElementById('recordVal').innerText = currentHighScore;
+        document.getElementById('newRecordNotice').style.display = 'block';
+      } else {
+        document.getElementById('newRecordNotice').style.display = 'none';
+      }
+
+      document.getElementById('gameOverModal').style.display = 'flex';
+    }
+
+    function fullReset() {
+      document.getElementById('gameOverModal').style.display = 'none';
+      isGameOver = false;
+      seedOrbs();
+      player = new SnakeEntity(WORLD_SIZE / 2, WORLD_SIZE / 2, playerName, playerSkin, 10, false);
+      initSpawns();
+    }
+
+    document.getElementById('retryBtn').addEventListener('click', fullReset);
+    document.getElementById('menuBtn').addEventListener('click', () => { window.location.href = 'menu.html'; });
+
+    // ==========================================
+    // ۱۱. رسم جهت‌نمای تاج پادشاه در لبه تصویر
+    // ==========================================
+    function drawKingPointer(king) {
+      if (!king || king === player || king.dead) return;
+
+      const scrX = canvas.width / 2 + (king.x - camera.x);
+      const scrY = canvas.height / 2 + (king.y - camera.y);
+
+      const inScreen = (scrX >= 40 && scrX <= canvas.width - 40 && scrY >= 40 && scrY <= canvas.height - 40);
+      if (inScreen) return;
+
+      const dx = king.x - player.x;
+      const dy = king.y - player.y;
+      const angle = Math.atan2(dy, dx);
+      const distMeters = Math.floor(Math.hypot(dx, dy) / 10);
+
+      const margin = 55;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const edgeX = Math.max(margin, Math.min(canvas.width - margin, cx + Math.cos(angle) * (cx - margin)));
+      const edgeY = Math.max(margin, Math.min(canvas.height - margin, cy + Math.sin(angle) * (cy - margin)));
+
+      ctx.save();
+      ctx.translate(edgeX, edgeY);
+
+      ctx.rotate(angle);
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#ffe600';
+      ctx.fillStyle = '#ffe600';
+      ctx.beginPath();
+      ctx.moveTo(18, 0);
+      ctx.lineTo(-8, -10);
+      ctx.lineTo(-2, 0);
+      ctx.lineTo(-8, 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.rotate(-angle);
+
+      ctx.fillStyle = '#ffe600';
+      ctx.beginPath();
+      ctx.moveTo(-10, -22);
+      ctx.lineTo(-12, -32);
+      ctx.lineTo(-4, -27);
+      ctx.lineTo(0, -35);
+      ctx.lineTo(4, -27);
+      ctx.lineTo(12, -32);
+      ctx.lineTo(10, -22);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.font = 'bold 10px Orbitron';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText(distMeters + 'm', 0, 18);
+
+      ctx.restore();
+    }
+
+    function drawField(c) {
+      c.strokeStyle = 'rgba(0, 243, 255, 0.05)';
+      c.lineWidth = 1;
+      const gSize = 120;
+      const sX = Math.floor((camera.x - canvas.width / 2) / gSize) * gSize;
+      const eX = sX + canvas.width + gSize * 2;
+      const sY = Math.floor((camera.y - canvas.height / 2) / gSize) * gSize;
+      const eY = sY + canvas.height + gSize * 2;
+      c.beginPath();
+      for (let x = sX; x <= eX; x += gSize) { c.moveTo(x, sY); c.lineTo(x, eY); }
+      for (let y = sY; y <= eY; y += gSize) { c.moveTo(sX, y); c.lineTo(eX, y); }
+      c.stroke();
+
+      c.strokeStyle = '#ff003b';
+      c.lineWidth = 10;
+      c.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+    }
+
+    function getSortedAliveSnakes() {
+      const alive = snakes.filter(s => !s.dead);
+      alive.sort((a, b) => b.score - a.score);
+      return alive;
+    }
+
+    function updateHUD(king, sortedAlive) {
+      const top = sortedAlive.slice(0, 6);
+      const list = document.getElementById('lbList');
+      list.innerHTML = '';
+      top.forEach((s, i) => {
+        const row = document.createElement('div');
+        const isKing = (s === king);
+        row.className = `lb-row ${s === player ? 'me' : ''} ${isKing ? 'king' : ''}`;
+        row.innerHTML = `<span>${isKing ? '👑 ' : ''}#${i + 1} ${s.name}</span><span>${Math.floor(s.score)}</span>`;
+        list.appendChild(row);
+      });
+
+      document.getElementById('scoreVal').innerText = Math.floor(player.score);
+      document.getElementById('killsVal').innerText = player.kills;
+
+      const gAlert = document.getElementById('ghostAlert');
+      if (player.isGhost) {
+        gAlert.style.display = 'block';
+        document.getElementById('ghostTimer').innerText = player.ghostTimeRemaining.toFixed(1);
+      } else {
+        gAlert.style.display = 'none';
+      }
+    }
+
+    // ==========================================
+    // ۱۲. حلقه فریم با توقف و قفل استارت
+    // ==========================================
+    let lastTime = performance.now();
+    let hudTick = 0;
+
+    function mainLoop(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      // تا زمانی که مسابقه استارت نخورده یا متوقف است، فیزیک مارها جلو نمی‌رود
+      if (gameStarted && !isPaused && !player.dead) {
+        camera.x += (player.x - camera.x) * 0.15;
+        camera.y += (player.y - camera.y) * 0.15;
+      }
+
+      ctx.fillStyle = '#030309';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+      ctx.translate(canvas.width / 2 - camera.x, canvas.height / 2 - camera.y);
+
+      drawField(ctx);
+
+      for (let orb of orbs) orb.draw(ctx);
+
+      const sortedAlive = getSortedAliveSnakes();
+      const king = sortedAlive.length > 0 ? sortedAlive[0] : null;
+
+      for (let s of snakes) {
+        if (gameStarted && !isPaused) {
+          s.update(dt);
+        }
+        s.draw(ctx, s === king);
+      }
+
+      if (gameStarted && !isPaused) {
+        checkCollisions();
+      }
+
+      ctx.restore();
+
+      drawKingPointer(king);
+
+      hudTick++;
+      if (hudTick % 10 === 0) updateHUD(king, sortedAlive);
+
+      requestAnimationFrame(mainLoop);
+    }
+
+    requestAnimationFrame(mainLoop);
+  </script>
+</body>
+</html>
